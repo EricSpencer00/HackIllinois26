@@ -61,18 +61,6 @@ function App() {
               tradeUrl={tradeUrl}
             />
             <PlanetView result={result} />
-            <div className="source-card graph-section" style={{ marginTop: '20px', border: '4px ridge var(--accent-orange)' }}>
-              <div className="source-card-header">
-                <span className="source-icon">✦</span>
-                <h3>Graph Section</h3>
-              </div>
-              <iframe 
-                src="https://web.archive.org/web/20091026165411/http://www.geocities.com/witchesgrave/the_heavens/interactive_page.html"
-                width="100%" 
-                height="400px" 
-                style={{ border: 'none', background: '#000' }}
-              />
-            </div>
             <SourceCards sources={result.sources} symbol={result.symbol} />
           </div>
         )}
@@ -80,10 +68,10 @@ function App() {
         {!result && !loading && (
           <div className="hero-section">
             <PlanetView result={null} />
-            <h1 style={{ color: 'var(--accent-orange)', fontSize: '4rem', marginBottom: '20px', fontStyle: 'italic' }}>SPACE JAM AI</h1>
+            <h1 className="hero-title">BRIGHTBET.TECH</h1>
             <p className="hero-subtitle">
-              YOU READY TO RUMBLE? Ask any trade or prediction question. Our AI analyzes data from multiple
-              sources to give you a confidence score. IT'S YOUR CHANCE, DO YOUR DANCE!
+              Ask any trade or prediction question. Brightbet.tech analyzes live market signals,
+              prediction-market odds, and reference context to deliver a clear confidence score.
             </p>
             <div className="example-questions">
               <button className="example-btn" onClick={() => handleSearch('Will Tesla stock reach $500 by end of 2026?')}>
@@ -98,24 +86,7 @@ function App() {
             </div>
           </div>
         )}
-        
-        {/* Ads Footer */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '60px', marginBottom: '80px', flexWrap: 'wrap', gap: '20px', padding: '20px', borderTop: '4px ridge var(--accent-orange)' }}>
-          <img src="https://web.archive.org/web/20061002101430/http://www.geocities.com/artboook2004/336x280_c.gif" alt="Tasteful Ad 1" />
-          <iframe src="https://web.archive.org/web/20090831071934/http://geocities.com/casinotop10/jackpot_nn4.html" width="400" height="200" style={{border:0}}></iframe>
-          <img src="https://web.archive.org/web/20020327114437/http://geocities.com:80/alphonso69fr/5star1_250x250.gif" alt="Tasteful Ad 2" />
-        </div>
-
       </main>
-
-      <div style={{ position: 'fixed', bottom: 0, width: '100%', zIndex: 1000, pointerEvents: 'none', backgroundColor: '#000', borderTop: '2px solid var(--accent-orange)' }}>
-        {/* @ts-ignore */}
-        <marquee direction="right" scrollamount="12" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src="https://web.archive.org/web/20090805045048im_/http://geocities.com/TimesSquare/Frontier/3712/warnerbrothers/bugsrun.gif" alt="Bugs Running" height="60" />
-        {/* @ts-ignore */}
-        </marquee>
-      </div>
-
     </div>
   );
 }

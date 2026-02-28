@@ -46,7 +46,16 @@ export async function getAiOpinion(req: AiOpinionRequest): Promise<AiOpinionResp
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
   });
-  if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+  if (!resp.ok) {
+    let message = `API error: ${resp.status}`;
+    try {
+      const body = await resp.json() as { error?: string };
+      if (body?.error) message = body.error;
+    } catch {
+      // fallback to status message above
+    }
+    throw new Error(message);
+  }
   return resp.json();
 }
 

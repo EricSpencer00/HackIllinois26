@@ -6,12 +6,27 @@
 
 import type { Env } from '../index';
 
+function resolveEnvValue(env: Env, keys: string[]): string {
+  for (const key of keys) {
+    const value = env[key];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return '';
+}
+
 // ─── GROQ AI ────────────────────────────────────────────────
 export async function callGroqAI(
   question: string,
   context: string,
   env: Env
 ): Promise<{ confidence_score: number; sentiment: string; reasoning: string }> {
+  const groqKey = resolveEnvValue(env, ['GROQ_API_KEY', 'GROQ_KEY', 'GROQ_TOKEN']);
+  if (!groqKey) {
+    throw new Error('Missing GROQ API key in worker environment. Set GROQ_API_KEY as a worker secret.');
+  }
+
   const systemPrompt = `You are an expert quantitative analyst working for a prediction market platform called BrightBet.
 Analyze the user's trade/bet question using the provided context from multiple data sources.
 You MUST respond with ONLY a valid JSON object in this exact format:
@@ -26,7 +41,7 @@ Do not include any markdown formatting.`;
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${env.GROQ_API_KEY}`,
+      Authorization: `Bearer ${groqKey}`,
     },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
@@ -96,9 +111,14 @@ export async function fetchFinnhubQuote(
   high: number | null;
   low: number | null;
 }> {
+  const finnhubKey = resolveEnvValue(env, ['FINNHUB_API_KEY', 'FINNHUB_KEY', 'FINNHUB_TOKEN']);
+  if (!finnhubKey) {
+    return { symbol: symbol.toUpperCase(), price: null, change: null, changePercent: null, high: null, low: null };
+  }
+
   try {
     const resp = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${symbol.toUpperCase()}&token=${env.FINNHUB_API_KEY}`
+      `https://finnhub.io/api/v1/quote?symbol=${symbol.toUpperCase()}&token=${finnhubKey}`
     );
     const data: any = await resp.json();
     return {
@@ -118,11 +138,16 @@ export async function fetchFinnhubNews(
   symbol: string,
   env: Env
 ): Promise<{ headline: string; summary: string; source: string; url: string }[]> {
+  const finnhubKey = resolveEnvValue(env, ['FINNHUB_API_KEY', 'FINNHUB_KEY', 'FINNHUB_TOKEN']);
+  if (!finnhubKey) {
+    return [];
+  }
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const past = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
     const resp = await fetch(
-      `https://finnhub.io/api/v1/company-news?symbol=${symbol.toUpperCase()}&from=${past}&to=${today}&token=${env.FINNHUB_API_KEY}`
+      `https://finnhub.io/api/v1/company-news?symbol=${symbol.toUpperCase()}&from=${past}&to=${today}&token=${finnhubKey}`
     );
     const data: any = await resp.json();
     return (data || []).slice(0, 5).map((a: any) => ({

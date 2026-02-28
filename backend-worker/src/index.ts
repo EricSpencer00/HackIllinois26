@@ -15,9 +15,14 @@ import { handlePlanetCategories } from './routes/planet-categories';
 const assetManifest = JSON.parse(manifestJSON);
 
 export interface Env {
-  GROQ_API_KEY: string;
-  FINNHUB_API_KEY: string;
-  PYTHON_API_URL: string;
+  GROQ_API_KEY?: string;
+  GROQ_KEY?: string;
+  GROQ_TOKEN?: string;
+  FINNHUB_API_KEY?: string;
+  FINNHUB_KEY?: string;
+  FINNHUB_TOKEN?: string;
+  PYTHON_API_URL?: string;
+  [key: string]: unknown;
   __STATIC_CONTENT: KVNamespace;
 }
 

@@ -15,6 +15,4 @@ cwd = "."
 bucket = "../frontend/dist"
 
 [vars]
-GROQ_API_KEY = ""
-FINNHUB_API_KEY = ""
 PYTHON_API_URL = "http://localhost:8000"
