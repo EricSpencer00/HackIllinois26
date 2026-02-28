@@ -146,13 +146,11 @@ export default function App() {
   return (
     <div className="app">
       {/* Three.js ASCII background */}
-      <div className={`ascii-scene-wrapper ${result && progress >= 0.75 ? 'dimmed' : ''}`}>
-        <AsciiScene
-          progress={progress}
-          selectedCategory={selectedCategory}
-          phase={phase}
-        />
-      </div>
+      <AsciiScene
+        progress={progress}
+        selectedCategory={selectedCategory}
+        phase={phase}
+      />
 
       {/* UI layer */}
       <div className="ui-layer">
