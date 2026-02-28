@@ -22,8 +22,16 @@ export async function callGroqAI(
   context: string,
   env: Env
 ): Promise<{ confidence_score: number; sentiment: string; reasoning: string }> {
-  const groqKey = resolveEnvValue(env, ['GROQ_API_KEY', 'GROQ_KEY', 'GROQ_TOKEN']);
-  if (!groqKey) {
+  // Collect all available keys in priority order
+  const keys: string[] = [
+    resolveEnvValue(env, ['GROQ_API_KEY', 'GROQ_KEY', 'GROQ_TOKEN']),
+    resolveEnvValue(env, ['GROQ_API_KEY_2']),
+    resolveEnvValue(env, ['GROQ_API_KEY_3']),
+    resolveEnvValue(env, ['GROQ_API_KEY_4']),
+    resolveEnvValue(env, ['GROQ_API_KEY_5']),
+  ].filter(Boolean);
+
+  if (keys.length === 0) {
     throw new Error('Missing GROQ API key in worker environment. Set GROQ_API_KEY as a worker secret.');
   }
 
@@ -37,36 +45,47 @@ Do not include any markdown formatting.`;
 
   const userPrompt = `Question: ${question}\n\nContext from data sources:\n${context}`;
 
-  const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${groqKey}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.2,
-      max_tokens: 300,
-    }),
-  });
+  let lastError = '';
+  for (const key of keys) {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.2,
+        max_tokens: 300,
+      }),
+    });
 
-  if (!resp.ok) {
-    const errText = await resp.text();
-    throw new Error(`Groq API error: ${resp.status} ${errText}`);
+    // On rate limit or auth error, try next key
+    if (resp.status === 429 || resp.status === 401 || resp.status === 403) {
+      lastError = `key ending ...${key.slice(-6)}: ${resp.status}`;
+      continue;
+    }
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Groq API error: ${resp.status} ${errText}`);
+    }
+
+    const data: any = await resp.json();
+    const text = data.choices?.[0]?.message?.content?.trim() || '';
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { confidence_score: 50, sentiment: 'neutral', reasoning: text.slice(0, 200) };
+    }
   }
 
-  const data: any = await resp.json();
-  const text = data.choices?.[0]?.message?.content?.trim() || '';
-
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { confidence_score: 50, sentiment: 'neutral', reasoning: text.slice(0, 200) };
-  }
+  throw new Error(`All Groq API keys exhausted. Last error: ${lastError}`);
 }
 
 // ─── WIKIPEDIA ──────────────────────────────────────────────

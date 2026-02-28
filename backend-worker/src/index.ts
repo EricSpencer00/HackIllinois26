@@ -19,6 +19,10 @@ export interface Env {
   GROQ_API_KEY?: string;
   GROQ_KEY?: string;
   GROQ_TOKEN?: string;
+  GROQ_API_KEY_2?: string;
+  GROQ_API_KEY_3?: string;
+  GROQ_API_KEY_4?: string;
+  GROQ_API_KEY_5?: string;
   FINNHUB_API_KEY?: string;
   FINNHUB_KEY?: string;
   FINNHUB_TOKEN?: string;
