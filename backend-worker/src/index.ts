@@ -12,6 +12,13 @@ import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
 import { handleGenerateVideo } from './routes/generate-video';
+import {
+  handleRickroll,
+  handlePaymentSuccess,
+  handlePaymentCancel,
+  handleStripeWebhook,
+  handlePaymentStatus,
+} from './routes/x402-payment';
 
 const assetManifest = JSON.parse(manifestJSON);
 
@@ -33,6 +40,11 @@ export interface Env {
   AV_API_KEY?: string;
   PYTHON_API_URL?: string;
   AI: any; // Cloudflare Workers AI binding
+  // Stripe / x402
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_PUBLISHABLE_KEY?: string;
+  APP_BASE_URL?: string;
   [key: string]: unknown;
   __STATIC_CONTENT: KVNamespace;
 }
@@ -55,6 +67,22 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
+    // --- Stripe webhook (must receive raw body, handled before JSON parsing) ---
+    if (path === '/stripe/webhooks' && request.method === 'POST') {
+      return handleStripeWebhook(request, env);
+    }
+
+    // --- Payment redirect routes (not under /api, no CORS needed) ---
+    if (path === '/payment/success') {
+      return handlePaymentSuccess(request, env);
+    }
+    if (path === '/payment/cancel') {
+      return handlePaymentCancel(request);
+    }
+    if (path.startsWith('/payment/status/')) {
+      return handlePaymentStatus(request);
+    }
+
     // --- API Routes ---
     if (path.startsWith('/api') || path === '/health') {
       let response: Response;
@@ -62,6 +90,8 @@ export default {
       try {
         if (path === '/api/health' || path === '/health') {
           response = await handleHealth();
+        } else if (path === '/api/rickroll') {
+          response = await handleRickroll(request, env);
         } else if (path === '/api/get-ai-opinion') {
           response = await handleGetAiOpinion(request, env);
         } else if (path === '/api/visualize') {

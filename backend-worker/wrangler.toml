@@ -19,3 +19,8 @@ binding = "AI"
 
 [vars]
 PYTHON_API_URL = "http://localhost:8000"
+APP_BASE_URL = "https://brightbet.tech"
+
+# Stripe keys are set as encrypted secrets via:
+#   wrangler secret put STRIPE_SECRET_KEY
+#   wrangler secret put STRIPE_WEBHOOK_SECRET
