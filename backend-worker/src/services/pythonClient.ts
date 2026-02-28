@@ -467,9 +467,21 @@ export function extractCryptoId(question: string): string | null {
 }
 
 // ─── COINGECKO (free, no key) ───────────────────────────────
-export async function fetchCoinGecko(
-  coinId: string
-): Promise<{
+
+// CoinCap ID mapping (differs from CoinGecko for some coins)
+const COINCAP_IDS: Record<string, string> = {
+  'bitcoin': 'bitcoin', 'ethereum': 'ethereum', 'solana': 'solana',
+  'dogecoin': 'dogecoin', 'cardano': 'cardano', 'ripple': 'ripple',
+  'polkadot': 'polkadot', 'avalanche-2': 'avalanche', 'matic-network': 'polygon',
+  'litecoin': 'litecoin', 'chainlink': 'chainlink', 'monero': 'monero',
+  'tron': 'tron', 'stellar': 'stellar', 'cosmos': 'cosmos',
+  'algorand': 'algorand', 'near': 'near-protocol', 'fantom': 'fantom',
+  'aptos': 'aptos', 'shiba-inu': 'shiba-inu', 'uniswap': 'uniswap',
+  'aave': 'aave', 'arbitrum': 'arbitrum', 'optimism': 'optimism',
+  'sui': 'sui', 'pepe': 'pepe',
+};
+
+type CryptoResult = {
   name: string;
   symbol: string;
   price: number | null;
@@ -478,21 +490,20 @@ export async function fetchCoinGecko(
   marketCap: number | null;
   volume24h: number | null;
   ath: number | null;
-} | null> {
-  const url = `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`;
-  const headers = { 'Accept': 'application/json' };
+};
 
-  // Retry up to 2 times with backoff (CoinGecko rate-limits aggressively)
+async function fetchCoinGeckoInner(coinId: string): Promise<CryptoResult | null> {
+  const url = `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`;
+  const headers = {
+    'Accept': 'application/json',
+    'User-Agent': 'BrightBet/1.0 (hackathon project)',
+  };
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      if (attempt > 0) {
-        await new Promise((r) => setTimeout(r, attempt * 1500));
-      }
+      if (attempt > 0) await new Promise((r) => setTimeout(r, attempt * 1500));
       const resp = await fetch(url, { headers });
-      if (resp.status === 429) {
-        // Rate limited — wait and retry
-        continue;
-      }
+      if (resp.status === 429) continue;
       if (!resp.ok) return null;
       const data: any = await resp.json();
       return {
@@ -510,6 +521,40 @@ export async function fetchCoinGecko(
     }
   }
   return null;
+}
+
+async function fetchCoinCapFallback(coinId: string): Promise<CryptoResult | null> {
+  const capId = COINCAP_IDS[coinId] || coinId;
+  const url = `https://api.coincap.io/v2/assets/${capId}`;
+  try {
+    const resp = await fetch(url, {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'BrightBet/1.0' },
+    });
+    if (!resp.ok) return null;
+    const json: any = await resp.json();
+    const d = json.data;
+    if (!d) return null;
+    return {
+      name: d.name || coinId,
+      symbol: (d.symbol || '').toUpperCase(),
+      price: d.priceUsd ? parseFloat(d.priceUsd) : null,
+      change24h: d.changePercent24Hr ? parseFloat(d.changePercent24Hr) : null,
+      change7d: null, // CoinCap doesn't provide 7d change
+      marketCap: d.marketCapUsd ? parseFloat(d.marketCapUsd) : null,
+      volume24h: d.volumeUsd24Hr ? parseFloat(d.volumeUsd24Hr) : null,
+      ath: null, // CoinCap doesn't provide ATH
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchCoinGecko(coinId: string): Promise<CryptoResult | null> {
+  // Try CoinGecko first, fall back to CoinCap if blocked/rate-limited
+  const result = await fetchCoinGeckoInner(coinId);
+  if (result) return result;
+  console.log(`CoinGecko failed for ${coinId}, falling back to CoinCap`);
+  return fetchCoinCapFallback(coinId);
 }
 
 // ─── FEAR & GREED INDEX (free, no key) ──────────────────────
