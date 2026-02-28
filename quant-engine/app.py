@@ -40,17 +40,28 @@ def _extract_symbol(question: str) -> Optional[str]:
     if match:
         return match.group(1)
 
-    # Skip stock ticker extraction if a crypto keyword is detected
-    crypto_keywords = [
-        "monero", "xmr", "ethereum", "eth", "solana", "sol", "dogecoin", "doge",
-        "cardano", "ada", "xrp", "ripple", "polkadot", "dot", "avalanche", "avax",
-        "litecoin", "ltc", "chainlink", "link", "tron", "trx", "stellar", "xlm",
-        "cosmos", "atom", "algorand", "algo", "fantom", "ftm", "aptos", "apt",
-        "sui", "pepe", "shiba", "shib", "uniswap", "uni", "aave", "arbitrum", "arb",
-    ]
     q_lower = question.lower()
-    for kw in crypto_keywords:
+
+    # Skip stock ticker extraction if a crypto keyword is detected
+    # Long names: simple substring match
+    crypto_long = [
+        "bitcoin", "ethereum", "solana", "dogecoin", "cardano", "ripple",
+        "polkadot", "avalanche", "litecoin", "chainlink", "monero", "stellar",
+        "cosmos", "algorand", "fantom", "aptos", "uniswap", "aave", "arbitrum",
+        "near protocol", "shiba", "pepe", "cryptocurrency", "crypto",
+    ]
+    # Short tickers: word boundary match to avoid 'eth' in 'whether', 'sol' in 'solution'
+    crypto_short = [
+        "btc", "eth", "sol", "doge", "ada", "xrp", "dot", "avax", "ltc",
+        "link", "xmr", "trx", "xlm", "atom", "algo", "ftm", "apt", "sui",
+        "shib", "uni", "arb", "tron",
+    ]
+
+    for kw in crypto_long:
         if kw in q_lower:
+            return None
+    for kw in crypto_short:
+        if re.search(rf'\b{kw}\b', q_lower):
             return None
 
     mappings = {
@@ -59,7 +70,6 @@ def _extract_symbol(question: str) -> Optional[str]:
         "netflix": "NFLX", "disney": "DIS", "amd": "AMD", "intel": "INTC",
         "coinbase": "COIN", "palantir": "PLTR", "uber": "UBER",
         "spacex": "TSLA", "elon": "TSLA", "musk": "TSLA",
-        "bitcoin": "COIN", "crypto": "COIN",
     }
     for keyword, ticker in mappings.items():
         if keyword in q_lower:

@@ -378,22 +378,38 @@ export async function fetchPolymarketData(
 }
 
 // ─── TICKER EXTRACTION ─────────────────────────────────────
+
+/** Check if a keyword appears as a whole word in the text (avoids 'eth' matching 'whether') */
+function wordMatch(text: string, keyword: string): boolean {
+  const re = new RegExp(`\\b${keyword}\\b`, 'i');
+  return re.test(text);
+}
+
 export function extractTicker(question: string): string | null {
   const tickerMatch = question.match(/\$([A-Z]{1,5})/i);
   if (tickerMatch) return tickerMatch[1].toUpperCase();
 
-  // Skip ticker extraction if a crypto keyword is detected — avoids false stock matches
-  const cryptoKeywords = [
-    'monero', 'xmr', 'ethereum', 'eth', 'solana', 'sol', 'dogecoin', 'doge',
-    'cardano', 'ada', 'xrp', 'ripple', 'polkadot', 'dot', 'avalanche', 'avax',
-    'litecoin', 'ltc', 'chainlink', 'link', 'tron', 'trx', 'stellar', 'xlm',
-    'cosmos', 'atom', 'algorand', 'algo', 'fantom', 'ftm', 'aptos', 'apt',
-    'sui', 'pepe', 'shiba', 'shib', 'uniswap', 'uni', 'aave', 'arbitrum', 'arb',
-    'near protocol',
-  ];
   const lower = question.toLowerCase();
-  for (const kw of cryptoKeywords) {
+
+  // Skip ticker extraction if a crypto keyword is detected — avoids false stock matches
+  // Long names use simple includes; short tickers (≤4 chars) use word boundary matching
+  const cryptoLong = [
+    'bitcoin', 'ethereum', 'solana', 'dogecoin', 'cardano', 'ripple',
+    'polkadot', 'avalanche', 'litecoin', 'chainlink', 'monero', 'stellar',
+    'cosmos', 'algorand', 'fantom', 'aptos', 'uniswap', 'aave', 'arbitrum',
+    'near protocol', 'shiba', 'pepe', 'cryptocurrency', 'crypto',
+  ];
+  const cryptoShort = [
+    'btc', 'eth', 'sol', 'doge', 'ada', 'xrp', 'dot', 'avax', 'ltc',
+    'link', 'xmr', 'trx', 'xlm', 'atom', 'algo', 'ftm', 'apt', 'sui',
+    'shib', 'uni', 'arb', 'tron',
+  ];
+
+  for (const kw of cryptoLong) {
     if (lower.includes(kw)) return null;
+  }
+  for (const kw of cryptoShort) {
+    if (wordMatch(lower, kw)) return null;
   }
 
   const mappings: Record<string, string> = {
@@ -402,7 +418,6 @@ export function extractTicker(question: string): string | null {
     netflix: 'NFLX', disney: 'DIS', amd: 'AMD', intel: 'INTC',
     coinbase: 'COIN', palantir: 'PLTR', uber: 'UBER', snap: 'SNAP',
     spacex: 'TSLA', elon: 'TSLA', musk: 'TSLA',
-    bitcoin: 'COIN', crypto: 'COIN',
   };
   for (const [kw, ticker] of Object.entries(mappings)) {
     if (lower.includes(kw)) return ticker;
@@ -412,39 +427,42 @@ export function extractTicker(question: string): string | null {
 
 // ─── CRYPTO EXTRACTION ─────────────────────────────────────
 export function extractCryptoId(question: string): string | null {
-  const mappings: Record<string, string> = {
-    bitcoin: 'bitcoin', btc: 'bitcoin',
-    ethereum: 'ethereum', eth: 'ethereum',
-    solana: 'solana', sol: 'solana',
-    dogecoin: 'dogecoin', doge: 'dogecoin',
-    cardano: 'cardano', ada: 'cardano',
-    xrp: 'ripple', ripple: 'ripple',
-    polkadot: 'polkadot', dot: 'polkadot',
-    avalanche: 'avalanche-2', avax: 'avalanche-2',
-    polygon: 'matic-network', matic: 'matic-network',
-    litecoin: 'litecoin', ltc: 'litecoin',
-    chainlink: 'chainlink', link: 'chainlink',
-    monero: 'monero', xmr: 'monero',
-    tron: 'tron', trx: 'tron',
-    stellar: 'stellar', xlm: 'stellar',
-    cosmos: 'cosmos', atom: 'cosmos',
-    algorand: 'algorand', algo: 'algorand',
-    near: 'near', 'near protocol': 'near',
-    fantom: 'fantom', ftm: 'fantom',
-    aptos: 'aptos', apt: 'aptos',
-    sui: 'sui',
-    pepe: 'pepe',
-    shiba: 'shiba-inu', shib: 'shiba-inu',
-    uniswap: 'uniswap', uni: 'uniswap',
-    aave: 'aave',
-    arbitrum: 'arbitrum', arb: 'arbitrum',
-    optimism: 'optimism',
-    crypto: 'bitcoin',
-  };
   const lower = question.toLowerCase();
-  for (const [kw, id] of Object.entries(mappings)) {
+
+  // Long names — simple includes match
+  const longMappings: [string, string][] = [
+    ['bitcoin', 'bitcoin'], ['ethereum', 'ethereum'], ['solana', 'solana'],
+    ['dogecoin', 'dogecoin'], ['cardano', 'cardano'], ['ripple', 'ripple'],
+    ['polkadot', 'polkadot'], ['avalanche', 'avalanche-2'],
+    ['polygon', 'matic-network'], ['litecoin', 'litecoin'],
+    ['chainlink', 'chainlink'], ['monero', 'monero'], ['tron', 'tron'],
+    ['stellar', 'stellar'], ['cosmos', 'cosmos'], ['algorand', 'algorand'],
+    ['near protocol', 'near'], ['fantom', 'fantom'], ['aptos', 'aptos'],
+    ['shiba', 'shiba-inu'], ['uniswap', 'uniswap'], ['aave', 'aave'],
+    ['arbitrum', 'arbitrum'], ['optimism', 'optimism'],
+    ['cryptocurrency', 'bitcoin'], ['crypto', 'bitcoin'],
+  ];
+
+  for (const [kw, id] of longMappings) {
     if (lower.includes(kw)) return id;
   }
+
+  // Short tickers — word boundary match to avoid 'eth' in 'whether', 'sol' in 'solution' etc.
+  const shortMappings: [string, string][] = [
+    ['btc', 'bitcoin'], ['eth', 'ethereum'], ['sol', 'solana'],
+    ['doge', 'dogecoin'], ['ada', 'cardano'], ['xrp', 'ripple'],
+    ['dot', 'polkadot'], ['avax', 'avalanche-2'], ['matic', 'matic-network'],
+    ['ltc', 'litecoin'], ['link', 'chainlink'], ['xmr', 'monero'],
+    ['trx', 'tron'], ['xlm', 'stellar'], ['atom', 'cosmos'],
+    ['algo', 'algorand'], ['near', 'near'], ['ftm', 'fantom'],
+    ['apt', 'aptos'], ['sui', 'sui'], ['pepe', 'pepe'],
+    ['shib', 'shiba-inu'], ['uni', 'uniswap'], ['arb', 'arbitrum'],
+  ];
+
+  for (const [kw, id] of shortMappings) {
+    if (wordMatch(lower, kw)) return id;
+  }
+
   return null;
 }
 
@@ -461,26 +479,37 @@ export async function fetchCoinGecko(
   volume24h: number | null;
   ath: number | null;
 } | null> {
-  try {
-    const resp = await fetch(
-      `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (!resp.ok) return null;
-    const data: any = await resp.json();
-    return {
-      name: data.name || coinId,
-      symbol: (data.symbol || '').toUpperCase(),
-      price: data.market_data?.current_price?.usd ?? null,
-      change24h: data.market_data?.price_change_percentage_24h ?? null,
-      change7d: data.market_data?.price_change_percentage_7d ?? null,
-      marketCap: data.market_data?.market_cap?.usd ?? null,
-      volume24h: data.market_data?.total_volume?.usd ?? null,
-      ath: data.market_data?.ath?.usd ?? null,
-    };
-  } catch {
-    return null;
+  const url = `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`;
+  const headers = { 'Accept': 'application/json' };
+
+  // Retry up to 2 times with backoff (CoinGecko rate-limits aggressively)
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (attempt > 0) {
+        await new Promise((r) => setTimeout(r, attempt * 1500));
+      }
+      const resp = await fetch(url, { headers });
+      if (resp.status === 429) {
+        // Rate limited — wait and retry
+        continue;
+      }
+      if (!resp.ok) return null;
+      const data: any = await resp.json();
+      return {
+        name: data.name || coinId,
+        symbol: (data.symbol || '').toUpperCase(),
+        price: data.market_data?.current_price?.usd ?? null,
+        change24h: data.market_data?.price_change_percentage_24h ?? null,
+        change7d: data.market_data?.price_change_percentage_7d ?? null,
+        marketCap: data.market_data?.market_cap?.usd ?? null,
+        volume24h: data.market_data?.total_volume?.usd ?? null,
+        ath: data.market_data?.ath?.usd ?? null,
+      };
+    } catch {
+      // Network error — retry
+    }
   }
+  return null;
 }
 
 // ─── FEAR & GREED INDEX (free, no key) ──────────────────────
