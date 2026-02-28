@@ -53,7 +53,14 @@ export default function SourceCards({ sources, symbol }: Props) {
         {sources.polymarket.length > 0 ? (
           <div className="source-card-body">
             {sources.polymarket.slice(0, 3).map((m, i) => (
-              <div key={i} className="market-item">
+              <a
+                key={i}
+                className="market-item"
+                href={`https://polymarket.com/markets?q=${encodeURIComponent(m.question)}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+              >
                 <span className="market-question">{m.question}</span>
                 <div className="market-prices">
                   {m.yes_price && (
@@ -63,7 +70,7 @@ export default function SourceCards({ sources, symbol }: Props) {
                     <span className="price-tag no">NO {(parseFloat(m.no_price) * 100).toFixed(0)}¢</span>
                   )}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         ) : (

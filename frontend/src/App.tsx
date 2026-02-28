@@ -28,8 +28,9 @@ function App() {
 
   let tradeUrl = undefined;
   if (result) {
-    if (result.sources?.polymarket?.[0]?.slug) {
-      tradeUrl = `https://polymarket.com/event/${result.sources.polymarket[0].slug}`;
+    if ((result.sources?.polymarket?.length ?? 0) > 0) {
+      // Link to Polymarket search for the question — always live, slug URLs are often stale
+      tradeUrl = `https://polymarket.com/markets?q=${encodeURIComponent(result.question)}`;
     } else if (result.symbol) {
       tradeUrl = `https://robinhood.com/stocks/${result.symbol}`;
     }
