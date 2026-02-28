@@ -218,3 +218,255 @@ export function extractTicker(question: string): string | null {
   }
   return null;
 }
+
+// ─── CRYPTO EXTRACTION ─────────────────────────────────────
+export function extractCryptoId(question: string): string | null {
+  const mappings: Record<string, string> = {
+    bitcoin: 'bitcoin', btc: 'bitcoin',
+    ethereum: 'ethereum', eth: 'ethereum',
+    solana: 'solana', sol: 'solana',
+    dogecoin: 'dogecoin', doge: 'dogecoin',
+    cardano: 'cardano', ada: 'cardano',
+    xrp: 'ripple', ripple: 'ripple',
+    polkadot: 'polkadot', dot: 'polkadot',
+    avalanche: 'avalanche-2', avax: 'avalanche-2',
+    polygon: 'matic-network', matic: 'matic-network',
+    litecoin: 'litecoin', ltc: 'litecoin',
+    chainlink: 'chainlink', link: 'chainlink',
+    crypto: 'bitcoin',
+  };
+  const lower = question.toLowerCase();
+  for (const [kw, id] of Object.entries(mappings)) {
+    if (lower.includes(kw)) return id;
+  }
+  return null;
+}
+
+// ─── COINGECKO (free, no key) ───────────────────────────────
+export async function fetchCoinGecko(
+  coinId: string
+): Promise<{
+  name: string;
+  symbol: string;
+  price: number | null;
+  change24h: number | null;
+  change7d: number | null;
+  marketCap: number | null;
+  volume24h: number | null;
+  ath: number | null;
+} | null> {
+  try {
+    const resp = await fetch(
+      `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!resp.ok) return null;
+    const data: any = await resp.json();
+    return {
+      name: data.name || coinId,
+      symbol: (data.symbol || '').toUpperCase(),
+      price: data.market_data?.current_price?.usd ?? null,
+      change24h: data.market_data?.price_change_percentage_24h ?? null,
+      change7d: data.market_data?.price_change_percentage_7d ?? null,
+      marketCap: data.market_data?.market_cap?.usd ?? null,
+      volume24h: data.market_data?.total_volume?.usd ?? null,
+      ath: data.market_data?.ath?.usd ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ─── FEAR & GREED INDEX (free, no key) ──────────────────────
+export async function fetchFearGreedIndex(): Promise<{
+  value: number;
+  label: string;
+  timestamp: string;
+} | null> {
+  try {
+    const resp = await fetch('https://api.alternative.me/fng/?limit=1');
+    if (!resp.ok) return null;
+    const data: any = await resp.json();
+    const entry = data?.data?.[0];
+    if (!entry) return null;
+    return {
+      value: parseInt(entry.value, 10),
+      label: entry.value_classification || 'Unknown',
+      timestamp: new Date(parseInt(entry.timestamp, 10) * 1000).toISOString().split('T')[0],
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ─── REDDIT SENTIMENT (free, no key) ────────────────────────
+export async function fetchRedditSentiment(
+  query: string
+): Promise<{ subreddit: string; title: string; score: number; url: string; created: string }[]> {
+  const subreddits = ['wallstreetbets', 'stocks', 'investing', 'CryptoCurrency'];
+  const results: { subreddit: string; title: string; score: number; url: string; created: string }[] = [];
+  const encoded = encodeURIComponent(query);
+  try {
+    // Search across relevant subreddits
+    for (const sub of subreddits) {
+      try {
+        const resp = await fetch(
+          `https://www.reddit.com/r/${sub}/search.json?q=${encoded}&sort=relevance&t=month&limit=3`,
+          { headers: { 'User-Agent': 'BrightBet/1.0 (hackathon)' } }
+        );
+        if (!resp.ok) continue;
+        const data: any = await resp.json();
+        const posts = data?.data?.children || [];
+        for (const p of posts.slice(0, 2)) {
+          const post = p.data;
+          results.push({
+            subreddit: sub,
+            title: post.title || '',
+            score: post.score || 0,
+            url: `https://reddit.com${post.permalink || ''}`,
+            created: new Date((post.created_utc || 0) * 1000).toISOString().split('T')[0],
+          });
+        }
+      } catch {
+        continue;
+      }
+      if (results.length >= 6) break;
+    }
+    return results.slice(0, 6);
+  } catch {
+    return [];
+  }
+}
+
+// ─── GOOGLE TRENDS (free, unofficial) ───────────────────────
+export async function fetchGoogleTrends(
+  query: string
+): Promise<{ keyword: string; interest: string } | null> {
+  // Google Trends doesn't have a stable free API for Workers,
+  // so we use SerpAPI-style or a simple signal. For the hackathon
+  // we'll use the daily trends endpoint as a relevance signal.
+  try {
+    const resp = await fetch(
+      `https://trends.google.com/trends/api/dailytrends?hl=en-US&tz=-300&geo=US&ed=${new Date().toISOString().split('T')[0].replace(/-/g, '')}&ns=15`,
+      { headers: { 'User-Agent': 'BrightBet/1.0' } }
+    );
+    if (!resp.ok) return { keyword: query, interest: 'unavailable' };
+    const text = await resp.text();
+    // Google Trends prefixes response with ")]}'"
+    const clean = text.replace(/^\)\]\}\'/, '');
+    const data = JSON.parse(clean);
+    const topics = data?.default?.trendingSearchesDays?.[0]?.trendingSearches || [];
+    const keywords = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+    const match = topics.find((t: any) => {
+      const title = (t.title?.query || '').toLowerCase();
+      return keywords.some((kw) => title.includes(kw));
+    });
+    if (match) {
+      return {
+        keyword: match.title?.query || query,
+        interest: `Trending — ${match.formattedTraffic || 'high'} searches`,
+      };
+    }
+    return { keyword: query, interest: 'Not currently trending' };
+  } catch {
+    return { keyword: query, interest: 'unavailable' };
+  }
+}
+
+// ─── FRED (Federal Reserve Economic Data) ───────────────────
+export async function fetchFredData(
+  env: Env
+): Promise<{ series: string; label: string; value: string; date: string }[]> {
+  const fredKey = resolveEnvValue(env, ['FRED_API_KEY', 'FRED_KEY']);
+  if (!fredKey) {
+    return [];
+  }
+  // Fetch key macro indicators
+  const seriesIds: { id: string; label: string }[] = [
+    { id: 'DFF', label: 'Federal Funds Rate' },
+    { id: 'CPIAUCSL', label: 'CPI (Inflation)' },
+    { id: 'UNRATE', label: 'Unemployment Rate' },
+    { id: 'GDP', label: 'GDP' },
+    { id: 'T10Y2Y', label: '10Y-2Y Treasury Spread' },
+  ];
+  const results: { series: string; label: string; value: string; date: string }[] = [];
+  try {
+    const fetches = seriesIds.map(async (s) => {
+      try {
+        const resp = await fetch(
+          `https://api.stlouisfed.org/fred/series/observations?series_id=${s.id}&sort_order=desc&limit=1&api_key=${fredKey}&file_type=json`
+        );
+        if (!resp.ok) return;
+        const data: any = await resp.json();
+        const obs = data?.observations?.[0];
+        if (obs) {
+          results.push({ series: s.id, label: s.label, value: obs.value || 'N/A', date: obs.date || '' });
+        }
+      } catch { /* skip */ }
+    });
+    await Promise.all(fetches);
+    return results;
+  } catch {
+    return [];
+  }
+}
+
+// ─── ALPHA VANTAGE (stock technicals) ───────────────────────
+export async function fetchAlphaVantageTechnicals(
+  symbol: string,
+  env: Env
+): Promise<{
+  rsi: number | null;
+  macd: number | null;
+  macdSignal: number | null;
+  sma50: number | null;
+  sma200: number | null;
+} | null> {
+  const avKey = resolveEnvValue(env, ['ALPHA_VANTAGE_API_KEY', 'ALPHA_VANTAGE_KEY', 'AV_API_KEY']);
+  if (!avKey) return null;
+
+  const base = 'https://www.alphavantage.co/query';
+  try {
+    const [rsiResp, macdResp, sma50Resp, sma200Resp] = await Promise.all([
+      fetch(`${base}?function=RSI&symbol=${symbol}&interval=daily&time_period=14&series_type=close&apikey=${avKey}`),
+      fetch(`${base}?function=MACD&symbol=${symbol}&interval=daily&series_type=close&apikey=${avKey}`),
+      fetch(`${base}?function=SMA&symbol=${symbol}&interval=daily&time_period=50&series_type=close&apikey=${avKey}`),
+      fetch(`${base}?function=SMA&symbol=${symbol}&interval=daily&time_period=200&series_type=close&apikey=${avKey}`),
+    ]);
+
+    let rsi: number | null = null;
+    let macd: number | null = null;
+    let macdSignal: number | null = null;
+    let sma50: number | null = null;
+    let sma200: number | null = null;
+
+    try {
+      const rsiData: any = await rsiResp.json();
+      const rsiEntries = Object.values(rsiData?.['Technical Analysis: RSI'] || {}) as any[];
+      if (rsiEntries[0]) rsi = parseFloat(rsiEntries[0].RSI);
+    } catch {}
+    try {
+      const macdData: any = await macdResp.json();
+      const macdEntries = Object.values(macdData?.['Technical Analysis: MACD'] || {}) as any[];
+      if (macdEntries[0]) {
+        macd = parseFloat(macdEntries[0].MACD);
+        macdSignal = parseFloat(macdEntries[0].MACD_Signal);
+      }
+    } catch {}
+    try {
+      const sma50Data: any = await sma50Resp.json();
+      const sma50Entries = Object.values(sma50Data?.['Technical Analysis: SMA'] || {}) as any[];
+      if (sma50Entries[0]) sma50 = parseFloat(sma50Entries[0].SMA);
+    } catch {}
+    try {
+      const sma200Data: any = await sma200Resp.json();
+      const sma200Entries = Object.values(sma200Data?.['Technical Analysis: SMA'] || {}) as any[];
+      if (sma200Entries[0]) sma200 = parseFloat(sma200Entries[0].SMA);
+    } catch {}
+
+    if (rsi === null && macd === null && sma50 === null && sma200 === null) return null;
+    return { rsi, macd, macdSignal, sma50, sma200 };
+  } catch {
+    return null;
+  }
+}

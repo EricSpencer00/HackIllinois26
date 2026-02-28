@@ -12,6 +12,13 @@ import {
   fetchFinnhubNews,
   fetchPolymarketData,
   extractTicker,
+  extractCryptoId,
+  fetchCoinGecko,
+  fetchFearGreedIndex,
+  fetchRedditSentiment,
+  fetchGoogleTrends,
+  fetchFredData,
+  fetchAlphaVantageTechnicals,
 } from '../services/pythonClient';
 
 export async function handleGetAiOpinion(request: Request, env: Env): Promise<Response> {
@@ -41,13 +48,24 @@ export async function handleGetAiOpinion(request: Request, env: Env): Promise<Re
 
   const question = body.question;
   const symbol = body.symbol || extractTicker(question);
+  const cryptoId = extractCryptoId(question);
 
-  // Scrape in parallel
-  const [wikiResults, polyResults, finnQuote, finnNews] = await Promise.all([
+  // Scrape ALL sources in parallel
+  const [
+    wikiResults, polyResults, finnQuote, finnNews,
+    coinGeckoData, fearGreed, redditPosts, googleTrends,
+    fredData, technicals
+  ] = await Promise.all([
     fetchWikipedia(question),
     fetchPolymarketData(question),
     symbol ? fetchFinnhubQuote(symbol, env) : Promise.resolve(null),
     symbol ? fetchFinnhubNews(symbol, env) : Promise.resolve([]),
+    cryptoId ? fetchCoinGecko(cryptoId) : Promise.resolve(null),
+    fetchFearGreedIndex(),
+    fetchRedditSentiment(question),
+    fetchGoogleTrends(question),
+    fetchFredData(env),
+    symbol ? fetchAlphaVantageTechnicals(symbol, env) : Promise.resolve(null),
   ]);
 
   // Build context string
@@ -82,6 +100,47 @@ export async function handleGetAiOpinion(request: Request, env: Env): Promise<Re
     );
   }
 
+  if (coinGeckoData) {
+    contextParts.push(
+      `Crypto Data (${coinGeckoData.name} / ${coinGeckoData.symbol}): Price $${coinGeckoData.price}, 24h Change ${coinGeckoData.change24h?.toFixed(2)}%, 7d Change ${coinGeckoData.change7d?.toFixed(2)}%, Market Cap $${coinGeckoData.marketCap?.toLocaleString()}, ATH $${coinGeckoData.ath}`
+    );
+  }
+
+  if (fearGreed) {
+    contextParts.push(
+      `Market Fear & Greed Index: ${fearGreed.value}/100 (${fearGreed.label}) as of ${fearGreed.timestamp}`
+    );
+  }
+
+  if (redditPosts.length > 0) {
+    contextParts.push(
+      'Reddit Sentiment:\n' + redditPosts.map((r) => `- r/${r.subreddit}: "${r.title}" (score: ${r.score}, ${r.created})`).join('\n')
+    );
+  }
+
+  if (googleTrends) {
+    contextParts.push(
+      `Google Trends: "${googleTrends.keyword}" — ${googleTrends.interest}`
+    );
+  }
+
+  if (fredData.length > 0) {
+    contextParts.push(
+      'Macro Economic Indicators (FRED):\n' + fredData.map((f) => `- ${f.label}: ${f.value} (${f.date})`).join('\n')
+    );
+  }
+
+  if (technicals) {
+    const parts = [];
+    if (technicals.rsi !== null) parts.push(`RSI(14): ${technicals.rsi.toFixed(1)}`);
+    if (technicals.macd !== null) parts.push(`MACD: ${technicals.macd.toFixed(3)}`);
+    if (technicals.sma50 !== null) parts.push(`SMA(50): $${technicals.sma50.toFixed(2)}`);
+    if (technicals.sma200 !== null) parts.push(`SMA(200): $${technicals.sma200.toFixed(2)}`);
+    if (parts.length > 0) {
+      contextParts.push(`Technical Indicators for ${symbol}: ${parts.join(', ')}`);
+    }
+  }
+
   const fullContext = contextParts.join('\n\n');
 
   // Call Groq AI
@@ -97,6 +156,12 @@ export async function handleGetAiOpinion(request: Request, env: Env): Promise<Re
       finnhub: finnQuote
         ? { quote: finnQuote, news: finnNews }
         : null,
+      coingecko: coinGeckoData || null,
+      fearGreed: fearGreed || null,
+      reddit: redditPosts,
+      googleTrends: googleTrends || null,
+      fred: fredData,
+      technicals: technicals || null,
     },
   };
 

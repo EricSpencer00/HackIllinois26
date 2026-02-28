@@ -20,6 +20,34 @@ export interface Source {
     };
     news: { headline: string; summary: string; source: string; url: string }[];
   } | null;
+  coingecko: {
+    name: string;
+    symbol: string;
+    price: number | null;
+    change24h: number | null;
+    change7d: number | null;
+    marketCap: number | null;
+    volume24h: number | null;
+    ath: number | null;
+  } | null;
+  fearGreed: {
+    value: number;
+    label: string;
+    timestamp: string;
+  } | null;
+  reddit: { subreddit: string; title: string; score: number; url: string; created: string }[];
+  googleTrends: {
+    keyword: string;
+    interest: string;
+  } | null;
+  fred: { series: string; label: string; value: string; date: string }[];
+  technicals: {
+    rsi: number | null;
+    macd: number | null;
+    macdSignal: number | null;
+    sma50: number | null;
+    sma200: number | null;
+  } | null;
 }
 
 export interface AiOpinionResponse {

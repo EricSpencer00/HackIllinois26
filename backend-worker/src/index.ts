@@ -21,6 +21,11 @@ export interface Env {
   FINNHUB_API_KEY?: string;
   FINNHUB_KEY?: string;
   FINNHUB_TOKEN?: string;
+  FRED_API_KEY?: string;
+  FRED_KEY?: string;
+  ALPHA_VANTAGE_API_KEY?: string;
+  ALPHA_VANTAGE_KEY?: string;
+  AV_API_KEY?: string;
   PYTHON_API_URL?: string;
   [key: string]: unknown;
   __STATIC_CONTENT: KVNamespace;

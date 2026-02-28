@@ -307,6 +307,12 @@ body {
 .source-card.finnhub { border-color: var(--accent-green); overflow: hidden; }
 .source-card.polymarket { border-color: var(--accent-blue); overflow: hidden; }
 .source-card.wikipedia { border-color: var(--accent-amber); overflow: hidden; }
+.source-card.coingecko { border-color: #f7931a; overflow: hidden; }
+.source-card.feargreed { border-color: var(--accent-purple); overflow: hidden; }
+.source-card.reddit { border-color: #ff4500; overflow: hidden; }
+.source-card.trends { border-color: #4285f4; overflow: hidden; }
+.source-card.fred { border-color: #1a5276; overflow: hidden; }
+.source-card.technicals { border-color: #00ced1; overflow: hidden; }
 
 .source-card-header h3 {
   font-family: var(--font-display);
@@ -442,6 +448,203 @@ body {
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.6;
+}
+
+/* ─── Technicals ───────────────────────────────────────── */
+.technicals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tech-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+.tech-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tech-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tech-value.overbought { color: var(--accent-red); }
+.tech-value.oversold { color: var(--accent-green); }
+
+.tech-signal {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ─── Crypto ───────────────────────────────────────────── */
+.crypto-header {
+  margin-bottom: 8px;
+}
+
+.crypto-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #f7931a;
+}
+
+.crypto-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.price-tag.neutral {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+/* ─── Fear & Greed ─────────────────────────────────────── */
+.fear-greed-display {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.fg-value {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.fg-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 8px 0 12px;
+  text-transform: uppercase;
+}
+
+.fg-bar {
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, var(--accent-red), #ff8c00, var(--accent-amber), #90ee90, var(--accent-green));
+  border-radius: 4px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.fg-fill {
+  position: absolute;
+  top: -4px;
+  height: 16px;
+  width: 4px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #fff;
+}
+
+.fg-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* ─── Reddit ───────────────────────────────────────────── */
+.reddit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.reddit-item:last-child { border-bottom: none; }
+
+.reddit-item:hover { background: rgba(255,69,0,0.05); }
+
+.reddit-sub {
+  font-size: 11px;
+  color: #ff4500;
+  font-weight: 700;
+}
+
+.reddit-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.reddit-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* ─── Google Trends ────────────────────────────────────── */
+.trends-display {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.trends-keyword {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: #4285f4;
+}
+
+.trends-interest {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ─── FRED Macro ───────────────────────────────────────── */
+.fred-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fred-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.fred-item:last-child { border-bottom: none; }
+
+.fred-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.fred-value {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fred-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 /* ─── Hero Section ─────────────────────────────────────── */
