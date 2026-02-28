@@ -33,10 +33,8 @@ def _extract_wiki_query(question: str) -> str:
             important.append(term)
 
     if proper_nouns:
-        result = ' '.join(proper_nouns)
-        if important:
-            result += ' ' + important[0]
-        return result
+        # Use just proper nouns for Wikipedia — domain terms cause noise
+        return ' '.join(proper_nouns)
     return question
 
 

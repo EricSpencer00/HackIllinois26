@@ -102,9 +102,9 @@ function extractWikiQuery(question: string): string {
   }
 
   if (properNouns.length > 0) {
-    // Use proper nouns + one domain term for context
-    const query = properNouns.join(' ') + (importantTerms.length > 0 ? ' ' + importantTerms[0] : '');
-    return query;
+    // Use just proper nouns for Wikipedia — domain terms like "trillionaire" cause noise
+    // since they match tangential mentions in unrelated articles
+    return properNouns.join(' ');
   }
 
   // Fallback: use keyword extraction
@@ -211,6 +211,10 @@ const STOP_WORDS = new Set([
   'some', 'such', 'very', 'just', 'over', 'under', 'before', 'after', 'other', 'each',
   'stock', 'price', 'reach', 'think', 'going', 'still', 'remain', 'become',
   'next', 'year', 'month', 'week', 'end', 'start', 'until', 'during',
+  'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had',
+  'her', 'was', 'one', 'our', 'out', 'has', 'its', 'let', 'say', 'she',
+  'too', 'use', 'way', 'who', 'did', 'get', 'may', 'new', 'now', 'old',
+  'see', 'how', 'any', 'its', 'his', 'only',
 ]);
 
 function extractKeywords(query: string): string[] {
@@ -220,57 +224,132 @@ function extractKeywords(query: string): string[] {
     .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
 }
 
+/** Check if a keyword matches as a whole word (not substring like "elon" in "Barcelona") */
+function matchesWholeWord(text: string, keyword: string): boolean {
+  const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+  return regex.test(text);
+}
+
+/** Generate potential Polymarket slugs from a query */
+function generateSlugs(query: string): string[] {
+  const words = query.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean);
+  const slugs: string[] = [];
+
+  // Filter to meaningful words
+  const dateWords = new Set(['january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december']);
+  const meaningful = words.filter(w => !STOP_WORDS.has(w) && w.length > 2);
+  const nonDateMeaningful = meaningful.filter(w => !dateWords.has(w) && !/^\d{4}$/.test(w));
+
+  // Extract year from query
+  const yearMatch = query.match(/\b(20\d{2})\b/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : null;
+
+  if (nonDateMeaningful.length >= 2) {
+    const base = nonDateMeaningful.join('-');
+    slugs.push(base);
+    // Try common Polymarket date patterns
+    if (year) {
+      slugs.push(`${base}-before-${year}`);
+      slugs.push(`${base}-before-${year + 1}`);
+      slugs.push(`${base}-by-${year}`);
+      slugs.push(`${base}-by-${year + 1}`);
+      slugs.push(`${base}-in-${year}`);
+    } else {
+      for (const suffix of ['before-2027', 'before-2026', 'by-2027', 'by-2026']) {
+        slugs.push(`${base}-${suffix}`);
+      }
+    }
+  }
+
+  // Also try full slug with date words
+  if (meaningful.length >= 2 && meaningful.join('-') !== nonDateMeaningful.join('-')) {
+    slugs.push(meaningful.join('-'));
+  }
+
+  // Try proper nouns + topic
+  const properNouns = query.split(/\s+/)
+    .filter(w => /^[A-Z]/.test(w) && w.length > 1)
+    .map(w => w.replace(/[^a-zA-Z]/g, '').toLowerCase())
+    .filter(w => !['will', 'what', 'when', 'where', 'how', 'is', 'the', 'a'].includes(w));
+  if (properNouns.length >= 1) {
+    const topicWords = nonDateMeaningful.filter(w => !properNouns.includes(w)).slice(0, 2);
+    if (topicWords.length > 0) {
+      slugs.push([...properNouns, ...topicWords].join('-'));
+    }
+  }
+
+  return [...new Set(slugs)];
+}
+
 export async function fetchPolymarketData(
   query: string
 ): Promise<{ question: string; yes_price: string | null; no_price: string | null; volume: string | null; slug: string | null }[]> {
   try {
     const keywords = extractKeywords(query);
-    // Build a focused search query from the most important keywords
-    const searchQuery = keywords.slice(0, 5).join(' ');
-
-    // Strategy 1: Use Gamma API's native text search (much better than fetching 500 random markets)
-    const searchResp = await fetch(
-      `https://gamma-api.polymarket.com/markets?closed=false&limit=20&query=${encodeURIComponent(searchQuery)}`
-    );
     let markets: any[] = [];
-    if (searchResp.ok) {
-      markets = await searchResp.json();
-    }
 
-    // Strategy 2: If search returned few results, also try with just proper nouns
-    if (markets.length < 3) {
-      const properNouns = query.split(/\s+/)
-        .filter(w => /^[A-Z]/.test(w) && w.length > 1)
-        .map(w => w.replace(/[^a-zA-Z]/g, ''))
-        .filter(w => !['Will', 'What', 'When', 'Where', 'How', 'Is', 'The', 'A'].includes(w));
+    // Strategy 1: Try direct slug lookups (fast, exact match)
+    const slugs = generateSlugs(query);
+    const slugFetches = slugs.slice(0, 6).map(async (slug) => {
+      try {
+        const resp = await fetch(`https://gamma-api.polymarket.com/markets?closed=false&limit=5&slug=${encodeURIComponent(slug)}`);
+        if (resp.ok) {
+          const data: any[] = await resp.json();
+          return data;
+        }
+      } catch {}
+      return [];
+    });
 
-      if (properNouns.length > 0) {
-        const altResp = await fetch(
-          `https://gamma-api.polymarket.com/markets?closed=false&limit=20&query=${encodeURIComponent(properNouns.join(' '))}`
-        );
-        if (altResp.ok) {
-          const altMarkets: any[] = await altResp.json();
-          // Merge, dedup by question
-          const seen = new Set(markets.map((m: any) => m.question || m.title));
-          for (const m of altMarkets) {
-            const q = m.question || m.title;
-            if (!seen.has(q)) {
-              markets.push(m);
-              seen.add(q);
-            }
-          }
+    // Strategy 2: Parallel paginated fetch (scan broadly for keyword matches)
+    const pageFetches = [0, 1000, 2000, 3000, 4000].map(async (offset) => {
+      try {
+        const resp = await fetch(`https://gamma-api.polymarket.com/markets?closed=false&limit=500&offset=${offset}`);
+        if (resp.ok) return resp.json() as Promise<any[]>;
+      } catch {}
+      return [] as any[];
+    });
+
+    // Run all fetches in parallel
+    const [slugResults, pageResults] = await Promise.all([
+      Promise.all(slugFetches),
+      Promise.all(pageFetches),
+    ]);
+
+    // Merge slug results (highest priority)
+    const seen = new Set<string>();
+    for (const batch of slugResults) {
+      for (const m of batch) {
+        const q = m.question || m.title;
+        if (q && !seen.has(q)) {
+          markets.push(m);
+          seen.add(q);
         }
       }
     }
 
-    // Re-score results by keyword match quality to sort best matches first
+    // Filter paginated results with whole-word matching
+    const allPages = pageResults.flat();
+    for (const m of allPages) {
+      const q = m.question || m.title;
+      if (!q || seen.has(q)) continue;
+      const text = (q + ' ' + (m.description || '')).toLowerCase();
+      const matchCount = keywords.filter((kw) => matchesWholeWord(text, kw)).length;
+      if (matchCount >= 2) {
+        markets.push({ ...m, _matchCount: matchCount });
+        seen.add(q);
+      }
+    }
+
+    // Score and sort
     const scored = markets.map((m: any) => {
+      if (m._matchCount) return { market: m, matchCount: m._matchCount };
       const text = ((m.question || m.title || '') + ' ' + (m.description || '')).toLowerCase();
-      const matchCount = keywords.filter((kw) => text.includes(kw)).length;
+      const matchCount = keywords.filter((kw) => matchesWholeWord(text, kw)).length;
       return { market: m, matchCount };
     });
     const relevant = scored
-      .filter((s) => s.matchCount >= 1)
       .sort((a, b) => b.matchCount - a.matchCount)
       .map((s) => s.market);
 
