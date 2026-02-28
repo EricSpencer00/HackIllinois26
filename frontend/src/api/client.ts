@@ -100,3 +100,30 @@ export async function getHealth(): Promise<{ status: string }> {
   if (!resp.ok) throw new Error(`API error: ${resp.status}`);
   return resp.json();
 }
+
+export interface VideoGenResponse {
+  type: 'image' | 'fallback';
+  imageData?: string;   // base64 data URL from CF Workers AI
+  error?: string;
+  prompt?: string;
+  sentiment: string;
+  confidence: number;
+}
+
+export async function generateVideo(
+  question: string,
+  sentiment?: string,
+  confidence?: number
+): Promise<VideoGenResponse | null> {
+  try {
+    const resp = await fetch(`${API_BASE}/generate-video`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, sentiment, confidence }),
+    });
+    if (!resp.ok) return null;
+    return resp.json();
+  } catch {
+    return null;
+  }
+}

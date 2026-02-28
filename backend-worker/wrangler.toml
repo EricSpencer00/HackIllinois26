@@ -14,5 +14,8 @@ cwd = "."
 [site]
 bucket = "../frontend/dist"
 
+[ai]
+binding = "AI"
+
 [vars]
 PYTHON_API_URL = "http://localhost:8000"

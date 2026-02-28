@@ -1,4 +1,6 @@
-import type { AiOpinionResponse } from '../api/client';
+import { useEffect, useState } from 'react';
+import type { AiOpinionResponse, VideoGenResponse } from '../api/client';
+import { generateVideo } from '../api/client';
 
 interface Props {
   result: AiOpinionResponse | null;
@@ -17,6 +19,38 @@ interface PlanetDef {
 }
 
 export default function PlanetView({ result }: Props) {
+  const [videoData, setVideoData] = useState<VideoGenResponse | null>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
+
+  // Trigger AI image generation when result changes
+  useEffect(() => {
+    if (!result) {
+      setVideoData(null);
+      setImageReady(false);
+      return;
+    }
+
+    let cancelled = false;
+    setVideoLoading(true);
+    setImageReady(false);
+
+    generateVideo(result.question, result.sentiment, result.confidence_score)
+      .then((data) => {
+        if (!cancelled) {
+          setVideoData(data);
+          setVideoLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setVideoLoading(false);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [result?.question]);
+
   const planets: PlanetDef[] = [
     {
       id: 'finnhub',
@@ -130,6 +164,37 @@ export default function PlanetView({ result }: Props) {
   return (
     <div className="planet-view">
       <div className="planet-container">
+        {/* AI-generated visual overlay */}
+        {/* CSS nebula shown while loading or as fallback */}
+        {(videoLoading || (videoData?.type === 'fallback') || (!imageReady && videoData?.type === 'image')) && (
+          <div className={`video-overlay video-loaded nebula-fallback ${
+            result?.sentiment === 'bullish' ? 'nebula-bullish' :
+            result?.sentiment === 'bearish' ? 'nebula-bearish' : 'nebula-neutral'
+          }`}>
+            <div className="nebula-layer nebula-1" />
+            <div className="nebula-layer nebula-2" />
+            <div className="nebula-layer nebula-3" />
+            <div className="nebula-stars" />
+            {videoLoading && (
+              <span className="video-loading-text">Generating visual...</span>
+            )}
+          </div>
+        )}
+        {/* AI-generated image with animated Ken Burns effect */}
+        {videoData?.type === 'image' && videoData.imageData && (
+          <div className={`video-overlay ai-image-container ${imageReady ? 'video-loaded' : 'video-hidden'}`}>
+            <img
+              src={videoData.imageData}
+              alt="AI-generated visualization"
+              className="ai-gen-image"
+              onLoad={() => setImageReady(true)}
+              onError={() => {}}
+            />
+            <div className="ai-image-particles" />
+            <div className="ai-image-glow" />
+          </div>
+        )}
+
         {/* Orbit rings */}
         {planets.map((p) => (
           <div

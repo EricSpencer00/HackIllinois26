@@ -382,13 +382,28 @@ export function extractTicker(question: string): string | null {
   const tickerMatch = question.match(/\$([A-Z]{1,5})/i);
   if (tickerMatch) return tickerMatch[1].toUpperCase();
 
+  // Skip ticker extraction if a crypto keyword is detected — avoids false stock matches
+  const cryptoKeywords = [
+    'monero', 'xmr', 'ethereum', 'eth', 'solana', 'sol', 'dogecoin', 'doge',
+    'cardano', 'ada', 'xrp', 'ripple', 'polkadot', 'dot', 'avalanche', 'avax',
+    'litecoin', 'ltc', 'chainlink', 'link', 'tron', 'trx', 'stellar', 'xlm',
+    'cosmos', 'atom', 'algorand', 'algo', 'fantom', 'ftm', 'aptos', 'apt',
+    'sui', 'pepe', 'shiba', 'shib', 'uniswap', 'uni', 'aave', 'arbitrum', 'arb',
+    'near protocol',
+  ];
+  const lower = question.toLowerCase();
+  for (const kw of cryptoKeywords) {
+    if (lower.includes(kw)) return null;
+  }
+
   const mappings: Record<string, string> = {
     tesla: 'TSLA', apple: 'AAPL', google: 'GOOGL', alphabet: 'GOOGL',
     amazon: 'AMZN', microsoft: 'MSFT', nvidia: 'NVDA', meta: 'META',
+    netflix: 'NFLX', disney: 'DIS', amd: 'AMD', intel: 'INTC',
+    coinbase: 'COIN', palantir: 'PLTR', uber: 'UBER', snap: 'SNAP',
     spacex: 'TSLA', elon: 'TSLA', musk: 'TSLA',
     bitcoin: 'COIN', crypto: 'COIN',
   };
-  const lower = question.toLowerCase();
   for (const [kw, ticker] of Object.entries(mappings)) {
     if (lower.includes(kw)) return ticker;
   }
@@ -409,6 +424,21 @@ export function extractCryptoId(question: string): string | null {
     polygon: 'matic-network', matic: 'matic-network',
     litecoin: 'litecoin', ltc: 'litecoin',
     chainlink: 'chainlink', link: 'chainlink',
+    monero: 'monero', xmr: 'monero',
+    tron: 'tron', trx: 'tron',
+    stellar: 'stellar', xlm: 'stellar',
+    cosmos: 'cosmos', atom: 'cosmos',
+    algorand: 'algorand', algo: 'algorand',
+    near: 'near', 'near protocol': 'near',
+    fantom: 'fantom', ftm: 'fantom',
+    aptos: 'aptos', apt: 'aptos',
+    sui: 'sui',
+    pepe: 'pepe',
+    shiba: 'shiba-inu', shib: 'shiba-inu',
+    uniswap: 'uniswap', uni: 'uniswap',
+    aave: 'aave',
+    arbitrum: 'arbitrum', arb: 'arbitrum',
+    optimism: 'optimism',
     crypto: 'bitcoin',
   };
   const lower = question.toLowerCase();

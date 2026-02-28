@@ -90,7 +90,7 @@ export default function SourceCards({ sources, symbol }: Props) {
             </div>
           </div>
         ) : (
-          <p className="source-empty">{symbol ? 'Technical data unavailable — check Alpha Vantage API key' : 'No stock symbol detected for technical analysis'}</p>
+          <p className="source-empty">{symbol ? 'Technical data unavailable — check API key' : 'Technical analysis is for stocks only'}</p>
         )}
       </div>
 

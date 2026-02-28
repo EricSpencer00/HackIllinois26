@@ -11,6 +11,7 @@ import { handleHealth } from './routes/health';
 import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
+import { handleGenerateVideo } from './routes/generate-video';
 
 const assetManifest = JSON.parse(manifestJSON);
 
@@ -27,6 +28,7 @@ export interface Env {
   ALPHA_VANTAGE_KEY?: string;
   AV_API_KEY?: string;
   PYTHON_API_URL?: string;
+  AI: any; // Cloudflare Workers AI binding
   [key: string]: unknown;
   __STATIC_CONTENT: KVNamespace;
 }
@@ -62,6 +64,8 @@ export default {
           response = await handleVisualize(request, env);
         } else if (path === '/api/planet-categories') {
           response = await handlePlanetCategories();
+        } else if (path === '/api/generate-video') {
+          response = await handleGenerateVideo(request, env);
         } else {
           response = new Response(JSON.stringify({ error: 'Not found' }), {
             status: 404,

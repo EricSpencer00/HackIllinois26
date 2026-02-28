@@ -39,13 +39,28 @@ def _extract_symbol(question: str) -> Optional[str]:
     match = re.search(r'\$([A-Z]{1,5})', question.upper())
     if match:
         return match.group(1)
+
+    # Skip stock ticker extraction if a crypto keyword is detected
+    crypto_keywords = [
+        "monero", "xmr", "ethereum", "eth", "solana", "sol", "dogecoin", "doge",
+        "cardano", "ada", "xrp", "ripple", "polkadot", "dot", "avalanche", "avax",
+        "litecoin", "ltc", "chainlink", "link", "tron", "trx", "stellar", "xlm",
+        "cosmos", "atom", "algorand", "algo", "fantom", "ftm", "aptos", "apt",
+        "sui", "pepe", "shiba", "shib", "uniswap", "uni", "aave", "arbitrum", "arb",
+    ]
+    q_lower = question.lower()
+    for kw in crypto_keywords:
+        if kw in q_lower:
+            return None
+
     mappings = {
         "tesla": "TSLA", "apple": "AAPL", "google": "GOOGL", "alphabet": "GOOGL",
         "amazon": "AMZN", "microsoft": "MSFT", "nvidia": "NVDA", "meta": "META",
+        "netflix": "NFLX", "disney": "DIS", "amd": "AMD", "intel": "INTC",
+        "coinbase": "COIN", "palantir": "PLTR", "uber": "UBER",
         "spacex": "TSLA", "elon": "TSLA", "musk": "TSLA",
         "bitcoin": "COIN", "crypto": "COIN",
     }
-    q_lower = question.lower()
     for keyword, ticker in mappings.items():
         if keyword in q_lower:
             return ticker
