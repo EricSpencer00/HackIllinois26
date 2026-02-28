@@ -8,7 +8,7 @@ export interface AiOpinionRequest {
 
 export interface Source {
   wikipedia: { title: string; summary: string }[];
-  polymarket: { question: string; yes_price: string | null; no_price: string | null; volume: string | null }[];
+  polymarket: { question: string; yes_price: string | null; no_price: string | null; volume: string | null; slug?: string | null }[];
   finnhub: {
     quote: {
       symbol: string;

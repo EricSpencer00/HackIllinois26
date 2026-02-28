@@ -21,7 +21,7 @@ export default function PlanetView({ result }: Props) {
     {
       id: 'finnhub',
       name: 'Market Data',
-      icon: '📈',
+      icon: '✦',
       color: '#22c55e',
       orbitRadius: 100,
       size: 44,
@@ -32,7 +32,7 @@ export default function PlanetView({ result }: Props) {
     {
       id: 'polymarket',
       name: 'Predictions',
-      icon: '🎯',
+      icon: '✦',
       color: '#3b82f6',
       orbitRadius: 155,
       size: 40,
@@ -43,7 +43,7 @@ export default function PlanetView({ result }: Props) {
     {
       id: 'wikipedia',
       name: 'Knowledge',
-      icon: '📚',
+      icon: '✦',
       color: '#f59e0b',
       orbitRadius: 210,
       size: 36,
@@ -80,7 +80,7 @@ export default function PlanetView({ result }: Props) {
         {/* Center "sun" — AI brain */}
         <div className="center-sun" style={{ boxShadow: `0 0 60px ${centerColor}44, 0 0 120px ${centerColor}22` }}>
           <div className="sun-glow" style={{ background: `radial-gradient(circle, ${centerColor}33, transparent 70%)` }} />
-          <span className="sun-icon">{result ? '🧠' : '✦'}</span>
+          <span className="sun-icon">✦</span>
           {result && (
             <span className="sun-score" style={{ color: centerColor }}>
               {result.confidence_score}%
@@ -104,7 +104,7 @@ export default function PlanetView({ result }: Props) {
             <div className="planet-body" style={{ width: p.size, height: p.size }}>
               <span className="planet-icon">{p.icon}</span>
             </div>
-            <span className="planet-label">{p.name}</span>
+            <span className="planet-label" style={{ backgroundColor: 'rgba(0,0,0,0.7)', padding: '2px 4px', borderRadius: '4px' }}>{p.name}</span>
           </div>
         ))}
       </div>

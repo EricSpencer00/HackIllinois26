@@ -54,7 +54,7 @@ export async function handleVisualize(request: Request, env: Env): Promise<Respo
         id: 'finnhub',
         name: 'Market Data',
         color: '#22c55e',
-        icon: '📈',
+        icon: '✦',
         orbitRadius: 1,
         data: finnQuote
           ? {
@@ -68,7 +68,7 @@ export async function handleVisualize(request: Request, env: Env): Promise<Respo
         id: 'polymarket',
         name: 'Prediction Markets',
         color: '#3b82f6',
-        icon: '🎯',
+        icon: '✦',
         orbitRadius: 2,
         data: {
           markets: polyResults,
@@ -79,7 +79,7 @@ export async function handleVisualize(request: Request, env: Env): Promise<Respo
         id: 'wikipedia',
         name: 'Knowledge Base',
         color: '#f59e0b',
-        icon: '📚',
+        icon: '✦',
         orbitRadius: 3,
         data: {
           articles: wikiResults,

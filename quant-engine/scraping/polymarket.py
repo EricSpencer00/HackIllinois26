@@ -44,7 +44,7 @@ def search_markets(query: str, limit: int = 500) -> list:
                 else m.get("bestAsk"),
                 "volume": m.get("volume"),
                 "liquidity": m.get("liquidity"),
-                "end_date": m.get("endDate"),
+                "end_date": m.get("endDate"), "slug": m.get("slug"),
             }
             for m in relevant[:5]
         ]

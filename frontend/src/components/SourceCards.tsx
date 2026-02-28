@@ -11,7 +11,7 @@ export default function SourceCards({ sources, symbol }: Props) {
       {/* Finnhub Card */}
       <div className="source-card finnhub">
         <div className="source-card-header">
-          <span className="source-icon">📈</span>
+          <span className="source-icon">✦</span>
           <h3>Market Data</h3>
           {symbol && <span className="ticker-badge">${symbol}</span>}
         </div>
@@ -47,7 +47,7 @@ export default function SourceCards({ sources, symbol }: Props) {
       {/* Polymarket Card */}
       <div className="source-card polymarket">
         <div className="source-card-header">
-          <span className="source-icon">🎯</span>
+          <span className="source-icon">✦</span>
           <h3>Prediction Markets</h3>
         </div>
         {sources.polymarket.length > 0 ? (
@@ -74,8 +74,11 @@ export default function SourceCards({ sources, symbol }: Props) {
       {/* Wikipedia Card */}
       <div className="source-card wikipedia">
         <div className="source-card-header">
-          <span className="source-icon">📚</span>
+          <span className="source-icon">✦</span>
           <h3>Knowledge Base</h3>
+        </div>
+        <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+          <img src="https://web.archive.org/web/20090902015703im_/http://geocities.com/gateofknowledge/banner1.gif" alt="Knowledge Banner" />
         </div>
         {sources.wikipedia.length > 0 ? (
           <div className="source-card-body">

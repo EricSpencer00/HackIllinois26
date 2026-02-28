@@ -8,7 +8,7 @@ export async function handlePlanetCategories(): Promise<Response> {
     {
       id: 'ai',
       name: 'AI Analysis',
-      icon: '🧠',
+      icon: '✦',
       color: '#a855f7',
       description: 'Groq LLM-powered analysis with confidence scoring',
       orbitRadius: 0,
@@ -16,7 +16,7 @@ export async function handlePlanetCategories(): Promise<Response> {
     {
       id: 'finnhub',
       name: 'Market Data',
-      icon: '📈',
+      icon: '✦',
       color: '#22c55e',
       description: 'Real-time stock quotes and financial news from Finnhub',
       orbitRadius: 1,
@@ -24,7 +24,7 @@ export async function handlePlanetCategories(): Promise<Response> {
     {
       id: 'polymarket',
       name: 'Prediction Markets',
-      icon: '🎯',
+      icon: '✦',
       color: '#3b82f6',
       description: 'Live prediction market odds from Polymarket',
       orbitRadius: 2,
@@ -32,7 +32,7 @@ export async function handlePlanetCategories(): Promise<Response> {
     {
       id: 'wikipedia',
       name: 'Knowledge Base',
-      icon: '📚',
+      icon: '✦',
       color: '#f59e0b',
       description: 'Background context and historical data from Wikipedia',
       orbitRadius: 3,

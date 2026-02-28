@@ -40,8 +40,15 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url('https://web.archive.org/web/19961105151523im_/http://www.spacejam.com/cmp/bground.jpg');
-  background-repeat: repeat;
+  background-image: 
+    url('https://web.archive.org/web/20091027053940/http://us.geocities.com/lwtai2000/start1.gif'),
+    url('https://web.archive.org/web/20091027053940/http://us.geocities.com/lwtai2000/start1.gif'),
+    url('https://raw.githubusercontent.com/EricSpencer00/EricSpencer00.github.io/refs/heads/main/static/oldest-site/stars.jpeg');
+  background-position: 
+    0 0,
+    64px 64px,
+    0 0;
+  background-repeat: repeat, repeat, repeat;
   opacity: 0.8;
   pointer-events: none;
 }

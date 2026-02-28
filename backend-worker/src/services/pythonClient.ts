@@ -168,6 +168,7 @@ export async function fetchPolymarketData(
         yes_price,
         no_price,
         volume: m.volume || null,
+        slug: m.slug || null,
       };
     });
   } catch {
