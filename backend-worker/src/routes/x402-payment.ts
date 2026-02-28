@@ -45,7 +45,7 @@ const RICKROLL_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
-    <h1>🎤 You just got Rick Rolled 🎤</h1>
+    <h1>You just got Rick Rolled</h1>
     <img src="https://media1.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif" alt="Rick Astley - Never Gonna Give You Up" />
     <p>Never gonna give you up, never gonna let you down 🎵</p>
     <p style="margin-top: 0.5rem; color: #666;">Paid via x402 + Stripe</p>

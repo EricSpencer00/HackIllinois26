@@ -3,6 +3,7 @@
  * Fades in during the explosion phase (progress ≥ 0.75).
  */
 
+import { useState } from 'react';
 import type { AiOpinionResponse } from '../api/client';
 import { CATEGORIES } from '../lib/categories';
 
@@ -76,6 +77,9 @@ export default function DataOverlay({ result, progress, selectedCategory }: Prop
             </a>
           </div>
         )}
+
+        {/* Buy Trade Now — Stripe x402 checkout */}
+        <BuyTradeButton />
       </div>
     </div>
   );
@@ -320,6 +324,43 @@ function MacroPanel({ sources }: { sources: AiOpinionResponse['sources'] }) {
       ) : (
         <span className="subtitle">No macro data</span>
       )}
+    </div>
+  );
+}
+
+function BuyTradeButton() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleBuy = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await fetch('/api/rickroll');
+      const data = await resp.json();
+      const checkoutUrl = data?.paymentOptions?.stripe?.checkoutUrl;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        setError('Could not create checkout session');
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="trade-link-container" style={{ marginTop: 12 }}>
+      <button
+        className="trade-link buy-trade-btn"
+        onClick={handleBuy}
+        disabled={loading}
+      >
+        {loading ? 'Opening checkout...' : 'Buy Trade Now →'}
+      </button>
+      {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
     </div>
   );
 }

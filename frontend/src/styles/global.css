@@ -574,6 +574,16 @@ body {
   color: var(--black);
 }
 
+.buy-trade-btn {
+  cursor: pointer;
+  border: 1px solid var(--white);
+}
+
+.buy-trade-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
 /* ─── Scroll hint ─── */
 .scroll-hint {
   position: fixed;
