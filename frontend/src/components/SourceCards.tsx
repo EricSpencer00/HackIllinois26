@@ -90,7 +90,7 @@ export default function SourceCards({ sources, symbol }: Props) {
             </div>
           </div>
         ) : (
-          <p className="source-empty">No ticker detected for technical analysis</p>
+          <p className="source-empty">Technical data unavailable — check API key</p>
         )}
       </div>
 
@@ -218,7 +218,7 @@ export default function SourceCards({ sources, symbol }: Props) {
       <div className="source-card trends">
         <div className="source-card-header">
           <span className="source-icon">🔍</span>
-          <h3>Google Trends</h3>
+          <h3>Search Trends</h3>
         </div>
         {sources.googleTrends ? (
           <div className="source-card-body">
@@ -226,6 +226,14 @@ export default function SourceCards({ sources, symbol }: Props) {
               <span className="trends-keyword">"{sources.googleTrends.keyword}"</span>
               <span className="trends-interest">{sources.googleTrends.interest}</span>
             </div>
+            {sources.googleTrends.relatedQueries && sources.googleTrends.relatedQueries.length > 0 && (
+              <div className="related-queries">
+                <span className="rq-label">People also search:</span>
+                {sources.googleTrends.relatedQueries.map((q, i) => (
+                  <span key={i} className="rq-tag">{q}</span>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <p className="source-empty">Trends data unavailable</p>

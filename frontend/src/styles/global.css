@@ -611,6 +611,28 @@ body {
   color: var(--text-secondary);
 }
 
+.related-queries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.rq-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 100%;
+}
+
+.rq-tag {
+  background: rgba(66, 133, 244, 0.12);
+  border: 1px solid rgba(66, 133, 244, 0.25);
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: #8ab4f8;
+}
+
 /* ─── FRED Macro ───────────────────────────────────────── */
 .fred-grid {
   display: flex;

@@ -162,6 +162,22 @@ export async function fetchFinnhubNews(
 }
 
 // ─── POLYMARKET ─────────────────────────────────────────────
+const STOP_WORDS = new Set([
+  'will', 'what', 'when', 'where', 'which', 'would', 'could', 'should', 'does', 'have',
+  'been', 'being', 'that', 'this', 'than', 'them', 'they', 'their', 'there', 'these',
+  'those', 'with', 'from', 'into', 'about', 'also', 'more', 'most', 'much', 'many',
+  'some', 'such', 'very', 'just', 'over', 'under', 'before', 'after', 'other', 'each',
+  'stock', 'price', 'reach', 'think', 'going', 'still', 'remain', 'become',
+  'next', 'year', 'month', 'week', 'end', 'start', 'until', 'during',
+]);
+
+function extractKeywords(query: string): string[] {
+  return query.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+}
+
 export async function fetchPolymarketData(
   query: string
 ): Promise<{ question: string; yes_price: string | null; no_price: string | null; volume: string | null }[]> {
@@ -169,11 +185,18 @@ export async function fetchPolymarketData(
     const resp = await fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=500');
     const markets: any[] = await resp.json();
 
-    const keywords = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
-    let relevant = markets.filter((m: any) => {
+    const keywords = extractKeywords(query);
+    // Score each market by how many keywords match
+    const scored = markets.map((m: any) => {
       const text = ((m.question || m.title || '') + ' ' + (m.description || '')).toLowerCase();
-      return keywords.some((kw) => text.includes(kw));
+      const matchCount = keywords.filter((kw) => text.includes(kw)).length;
+      return { market: m, matchCount };
     });
+    // Require at least 2 keyword matches for relevance, sorted by match quality
+    let relevant = scored
+      .filter((s) => s.matchCount >= 2)
+      .sort((a, b) => b.matchCount - a.matchCount)
+      .map((s) => s.market);
 
     
 
@@ -305,32 +328,43 @@ export async function fetchRedditSentiment(
 ): Promise<{ subreddit: string; title: string; score: number; url: string; created: string }[]> {
   const subreddits = ['wallstreetbets', 'stocks', 'investing', 'CryptoCurrency'];
   const results: { subreddit: string; title: string; score: number; url: string; created: string }[] = [];
-  const encoded = encodeURIComponent(query);
+  // Extract meaningful search terms (not the full question)
+  const searchTerms = extractKeywords(query).slice(0, 4).join(' ');
+  if (!searchTerms) return [];
+  const encoded = encodeURIComponent(searchTerms);
   try {
-    // Search across relevant subreddits
-    for (const sub of subreddits) {
+    // Search across relevant subreddits in parallel
+    const fetches = subreddits.map(async (sub) => {
       try {
         const resp = await fetch(
-          `https://www.reddit.com/r/${sub}/search.json?q=${encoded}&sort=relevance&t=month&limit=3`,
-          { headers: { 'User-Agent': 'BrightBet/1.0 (hackathon)' } }
+          `https://www.reddit.com/r/${sub}/search.json?q=${encoded}&sort=relevance&t=month&limit=3&restrict_sr=on`,
+          { headers: { 'User-Agent': 'BrightBet/1.0 (hackathon; contact@brightbet.tech)' } }
         );
-        if (!resp.ok) continue;
+        if (!resp.ok) return [];
         const data: any = await resp.json();
         const posts = data?.data?.children || [];
-        for (const p of posts.slice(0, 2)) {
+        return posts.slice(0, 2).map((p: any) => {
           const post = p.data;
-          results.push({
+          return {
             subreddit: sub,
             title: post.title || '',
             score: post.score || 0,
             url: `https://reddit.com${post.permalink || ''}`,
             created: new Date((post.created_utc || 0) * 1000).toISOString().split('T')[0],
-          });
-        }
+          };
+        });
       } catch {
-        continue;
+        return [];
       }
-      if (results.length >= 6) break;
+    });
+    const allResults = (await Promise.all(fetches)).flat();
+    // Deduplicate by title
+    const seen = new Set<string>();
+    for (const r of allResults) {
+      if (!seen.has(r.title)) {
+        seen.add(r.title);
+        results.push(r);
+      }
     }
     return results.slice(0, 6);
   } catch {
@@ -338,38 +372,31 @@ export async function fetchRedditSentiment(
   }
 }
 
-// ─── GOOGLE TRENDS (free, unofficial) ───────────────────────
+// ─── GOOGLE TRENDS (via Google Suggest as a proxy) ──────────
 export async function fetchGoogleTrends(
   query: string
-): Promise<{ keyword: string; interest: string } | null> {
-  // Google Trends doesn't have a stable free API for Workers,
-  // so we use SerpAPI-style or a simple signal. For the hackathon
-  // we'll use the daily trends endpoint as a relevance signal.
+): Promise<{ keyword: string; interest: string; relatedQueries: string[] } | null> {
+  const keywords = extractKeywords(query).slice(0, 3).join(' ');
+  if (!keywords) return null;
   try {
+    // Use Google Suggest API — works from Workers, shows what people are searching
     const resp = await fetch(
-      `https://trends.google.com/trends/api/dailytrends?hl=en-US&tz=-300&geo=US&ed=${new Date().toISOString().split('T')[0].replace(/-/g, '')}&ns=15`,
+      `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(keywords)}`,
       { headers: { 'User-Agent': 'BrightBet/1.0' } }
     );
-    if (!resp.ok) return { keyword: query, interest: 'unavailable' };
-    const text = await resp.text();
-    // Google Trends prefixes response with ")]}'"
-    const clean = text.replace(/^\)\]\}\'/, '');
-    const data = JSON.parse(clean);
-    const topics = data?.default?.trendingSearchesDays?.[0]?.trendingSearches || [];
-    const keywords = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
-    const match = topics.find((t: any) => {
-      const title = (t.title?.query || '').toLowerCase();
-      return keywords.some((kw) => title.includes(kw));
-    });
-    if (match) {
+    if (!resp.ok) return { keyword: keywords, interest: 'Data unavailable', relatedQueries: [] };
+    const data: any = await resp.json();
+    const suggestions: string[] = (data?.[1] || []).slice(0, 6);
+    if (suggestions.length > 0) {
       return {
-        keyword: match.title?.query || query,
-        interest: `Trending — ${match.formattedTraffic || 'high'} searches`,
+        keyword: keywords,
+        interest: `${suggestions.length} related searches found`,
+        relatedQueries: suggestions,
       };
     }
-    return { keyword: query, interest: 'Not currently trending' };
+    return { keyword: keywords, interest: 'Low search activity', relatedQueries: [] };
   } catch {
-    return { keyword: query, interest: 'unavailable' };
+    return { keyword: keywords, interest: 'Data unavailable', relatedQueries: [] };
   }
 }
 

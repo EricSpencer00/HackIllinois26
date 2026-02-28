@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AiOpinionResponse } from './api/client';
 import { getAiOpinion } from './api/client';
 import SearchBar from './components/SearchBar';
@@ -7,10 +7,36 @@ import ConfidenceDisplay from './components/ConfidenceDisplay';
 import SourceCards from './components/SourceCards';
 import Header from './components/Header';
 
+const FALLBACK_EXAMPLES = [
+  'Will Tesla stock reach $500 by end of 2026?',
+  'Will Bitcoin hit $200k by December 2026?',
+  'Will Nvidia remain the most valuable company?',
+];
+
 function App() {
   const [result, setResult] = useState<AiOpinionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [examples, setExamples] = useState<string[]>(FALLBACK_EXAMPLES);
+
+  // Fetch live trending Polymarket questions on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await fetch(
+          'https://gamma-api.polymarket.com/markets?closed=false&limit=100&order=volume24hr&ascending=false'
+        );
+        const markets: any[] = await resp.json();
+        const questions = markets
+          .filter((m: any) => m.question && m.question.length > 15 && m.question.length < 100)
+          .slice(0, 3)
+          .map((m: any) => m.question as string);
+        if (questions.length >= 2) setExamples(questions);
+      } catch {
+        // keep fallback
+      }
+    })();
+  }, []);
 
   const handleSearch = async (question: string) => {
     setLoading(true);
@@ -75,15 +101,15 @@ function App() {
               prediction-market odds, and reference context to deliver a clear confidence score.
             </p>
             <div className="example-questions">
-              <button className="example-btn" onClick={() => handleSearch('Will Tesla stock reach $500 by end of 2026?')}>
-                TESLA TO $500??
-              </button>
-              <button className="example-btn" onClick={() => handleSearch('Will Bitcoin hit $200k by December 2026?')}>
-                BITCOIN TO $200K??
-              </button>
-              <button className="example-btn" onClick={() => handleSearch('Will Nvidia remain the most valuable company?')}>
-                NVIDIA DOMINATION??
-              </button>
+              {examples.map((q, i) => (
+                <button
+                  key={i}
+                  className="example-btn"
+                  onClick={() => handleSearch(q)}
+                >
+                  {q.length > 50 ? q.slice(0, 47) + '...' : q}
+                </button>
+              ))}
             </div>
           </div>
         )}

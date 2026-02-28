@@ -39,6 +39,7 @@ export interface Source {
   googleTrends: {
     keyword: string;
     interest: string;
+    relatedQueries?: string[];
   } | null;
   fred: { series: string; label: string; value: string; date: string }[];
   technicals: {
