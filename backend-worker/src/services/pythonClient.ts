@@ -70,10 +70,52 @@ Do not include any markdown formatting.`;
 }
 
 // ─── WIKIPEDIA ──────────────────────────────────────────────
+function extractWikiQuery(question: string): string {
+  // Extract proper nouns and meaningful entities for Wikipedia search
+  // instead of sending the full predictive question
+  const words = question.split(/\s+/);
+  const properNouns: string[] = [];
+  const importantTerms: string[] = [];
+
+  // Detect capitalized words (likely proper nouns) - skip first word which is always capitalized
+  for (let i = 0; i < words.length; i++) {
+    const clean = words[i].replace(/[^a-zA-Z0-9'-]/g, '');
+    if (!clean) continue;
+    // Proper noun detection: capitalized and not a common word
+    if (/^[A-Z]/.test(clean) && clean.length > 1 && i > 0) {
+      properNouns.push(clean);
+    } else if (i === 0 && /^[A-Z]/.test(clean) && clean.length > 1) {
+      // First word - include if it looks like a real name (not a question word)
+      const questionWords = new Set(['will', 'what', 'when', 'where', 'how', 'is', 'are', 'can', 'do', 'does', 'should', 'would', 'could', 'the', 'a', 'an']);
+      if (!questionWords.has(clean.toLowerCase())) {
+        properNouns.push(clean);
+      }
+    }
+  }
+
+  // Also extract domain-specific terms
+  const domainTerms = ['trillionaire', 'billionaire', 'millionaire', 'net worth', 'wealth',
+    'president', 'ceo', 'founder', 'market cap', 'ipo', 'acquisition'];
+  const lowerQ = question.toLowerCase();
+  for (const term of domainTerms) {
+    if (lowerQ.includes(term)) importantTerms.push(term);
+  }
+
+  if (properNouns.length > 0) {
+    // Use proper nouns + one domain term for context
+    const query = properNouns.join(' ') + (importantTerms.length > 0 ? ' ' + importantTerms[0] : '');
+    return query;
+  }
+
+  // Fallback: use keyword extraction
+  return extractKeywords(question).slice(0, 4).join(' ');
+}
+
 export async function fetchWikipedia(query: string): Promise<{ title: string; summary: string }[]> {
   const headers = { 'User-Agent': 'BrightBet/1.0 (hackathon project; contact@brightbet.tech)', 'Accept': 'application/json' };
   try {
-    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&format=json`;
+    const wikiQuery = extractWikiQuery(query);
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiQuery)}&srlimit=3&format=json`;
     const searchResp = await fetch(searchUrl, { headers });
     const searchData: any = await searchResp.json();
     const results = searchData?.query?.search || [];
@@ -180,25 +222,57 @@ function extractKeywords(query: string): string[] {
 
 export async function fetchPolymarketData(
   query: string
-): Promise<{ question: string; yes_price: string | null; no_price: string | null; volume: string | null }[]> {
+): Promise<{ question: string; yes_price: string | null; no_price: string | null; volume: string | null; slug: string | null }[]> {
   try {
-    const resp = await fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=500');
-    const markets: any[] = await resp.json();
-
     const keywords = extractKeywords(query);
-    // Score each market by how many keywords match
+    // Build a focused search query from the most important keywords
+    const searchQuery = keywords.slice(0, 5).join(' ');
+
+    // Strategy 1: Use Gamma API's native text search (much better than fetching 500 random markets)
+    const searchResp = await fetch(
+      `https://gamma-api.polymarket.com/markets?closed=false&limit=20&query=${encodeURIComponent(searchQuery)}`
+    );
+    let markets: any[] = [];
+    if (searchResp.ok) {
+      markets = await searchResp.json();
+    }
+
+    // Strategy 2: If search returned few results, also try with just proper nouns
+    if (markets.length < 3) {
+      const properNouns = query.split(/\s+/)
+        .filter(w => /^[A-Z]/.test(w) && w.length > 1)
+        .map(w => w.replace(/[^a-zA-Z]/g, ''))
+        .filter(w => !['Will', 'What', 'When', 'Where', 'How', 'Is', 'The', 'A'].includes(w));
+
+      if (properNouns.length > 0) {
+        const altResp = await fetch(
+          `https://gamma-api.polymarket.com/markets?closed=false&limit=20&query=${encodeURIComponent(properNouns.join(' '))}`
+        );
+        if (altResp.ok) {
+          const altMarkets: any[] = await altResp.json();
+          // Merge, dedup by question
+          const seen = new Set(markets.map((m: any) => m.question || m.title));
+          for (const m of altMarkets) {
+            const q = m.question || m.title;
+            if (!seen.has(q)) {
+              markets.push(m);
+              seen.add(q);
+            }
+          }
+        }
+      }
+    }
+
+    // Re-score results by keyword match quality to sort best matches first
     const scored = markets.map((m: any) => {
       const text = ((m.question || m.title || '') + ' ' + (m.description || '')).toLowerCase();
       const matchCount = keywords.filter((kw) => text.includes(kw)).length;
       return { market: m, matchCount };
     });
-    // Require at least 2 keyword matches for relevance, sorted by match quality
-    let relevant = scored
-      .filter((s) => s.matchCount >= 2)
+    const relevant = scored
+      .filter((s) => s.matchCount >= 1)
       .sort((a, b) => b.matchCount - a.matchCount)
       .map((s) => s.market);
-
-    
 
     return relevant.slice(0, 5).map((m: any) => {
       let prices = m.outcomePrices;
@@ -323,13 +397,31 @@ export async function fetchFearGreedIndex(): Promise<{
 }
 
 // ─── REDDIT SENTIMENT (free, no key) ────────────────────────
+function extractRedditQuery(question: string): string {
+  // Use proper nouns + 1 key topic word for broader Reddit matches
+  const words = question.split(/\s+/);
+  const properNouns = words
+    .filter(w => /^[A-Z][a-z]/.test(w.replace(/[^a-zA-Z]/g, '')))
+    .map(w => w.replace(/[^a-zA-Z'-]/g, ''))
+    .filter(w => w.length > 1);
+
+  if (properNouns.length > 0) {
+    // Add a finance-relevant topic term if available
+    const topicTerms = extractKeywords(question)
+      .filter(w => !properNouns.map(n => n.toLowerCase()).includes(w));
+    const topic = topicTerms.length > 0 ? ' ' + topicTerms[0] : '';
+    return properNouns.join(' ') + topic;
+  }
+  return extractKeywords(question).slice(0, 3).join(' ');
+}
+
 export async function fetchRedditSentiment(
   query: string
 ): Promise<{ subreddit: string; title: string; score: number; url: string; created: string }[]> {
-  const subreddits = ['wallstreetbets', 'stocks', 'investing', 'CryptoCurrency'];
+  const subreddits = ['wallstreetbets', 'stocks', 'investing', 'CryptoCurrency', 'economy', 'finance'];
   const results: { subreddit: string; title: string; score: number; url: string; created: string }[] = [];
-  // Extract meaningful search terms (not the full question)
-  const searchTerms = extractKeywords(query).slice(0, 4).join(' ');
+  // Use entity-focused search terms for broader matches
+  const searchTerms = extractRedditQuery(query);
   if (!searchTerms) return [];
   const encoded = encodeURIComponent(searchTerms);
   try {

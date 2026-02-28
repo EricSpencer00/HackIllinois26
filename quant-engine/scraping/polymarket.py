@@ -10,27 +10,37 @@ API_URL = "https://clob.polymarket.com"
 GAMMA_URL = "https://gamma-api.polymarket.com"
 
 
-def search_markets(query: str, limit: int = 500) -> list:
-    """Search Polymarket for relevant prediction markets."""
+def search_markets(query: str, limit: int = 20) -> list:
+    """Search Polymarket for relevant prediction markets using native text search."""
     try:
+        # Extract keywords for search
+        stop_words = {'will', 'what', 'when', 'where', 'which', 'would', 'could', 'should',
+                      'does', 'have', 'been', 'that', 'this', 'with', 'from', 'about',
+                      'the', 'and', 'for', 'not', 'but', 'are', 'was', 'were'}
+        keywords = [w.lower().strip('.,!?') for w in query.split()
+                    if len(w) > 2 and w.lower().strip('.,!?') not in stop_words]
+        search_query = ' '.join(keywords[:5])
+
+        # Use Gamma API's native text search
         resp = requests.get(
             f"{GAMMA_URL}/markets",
-            params={"closed": "false", "limit": limit},
+            params={"closed": "false", "limit": limit, "query": search_query},
             timeout=10,
         )
         resp.raise_for_status()
         markets = resp.json()
 
-        # Filter by keyword match
-        query_lower = query.lower()
-        keywords = query_lower.split()
+        # Re-score by keyword relevance
         relevant = []
         for m in markets:
             title = (m.get("question") or m.get("title") or "").lower()
             desc = (m.get("description") or "").lower()
             text = title + " " + desc
-            if any(kw in text for kw in keywords if len(kw) > 3):
-                relevant.append(m)
+            match_count = sum(1 for kw in keywords if kw in text)
+            if match_count >= 1:
+                relevant.append((match_count, m))
+        relevant.sort(key=lambda x: x[0], reverse=True)
+        relevant = [m for _, m in relevant]
 
         return [
             {

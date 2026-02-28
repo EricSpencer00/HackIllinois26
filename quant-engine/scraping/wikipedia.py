@@ -5,16 +5,49 @@ WIKIPEDIA SCRAPER
   relevant to the user's question.
 """
 
+import re
 import requests
+
+
+def _extract_wiki_query(question: str) -> str:
+    """Extract entity names and key terms for Wikipedia search."""
+    words = question.split()
+    question_words = {'will', 'what', 'when', 'where', 'how', 'is', 'are', 'can',
+                      'do', 'does', 'should', 'would', 'could', 'the', 'a', 'an', 'by'}
+    proper_nouns = []
+    for i, w in enumerate(words):
+        clean = re.sub(r'[^a-zA-Z0-9\'-]', '', w)
+        if not clean:
+            continue
+        if clean[0].isupper() and len(clean) > 1:
+            if i == 0 and clean.lower() in question_words:
+                continue
+            proper_nouns.append(clean)
+
+    domain_terms = ['trillionaire', 'billionaire', 'net worth', 'wealth',
+                    'president', 'ceo', 'founder', 'market cap', 'ipo']
+    important = []
+    lower_q = question.lower()
+    for term in domain_terms:
+        if term in lower_q:
+            important.append(term)
+
+    if proper_nouns:
+        result = ' '.join(proper_nouns)
+        if important:
+            result += ' ' + important[0]
+        return result
+    return question
 
 
 def search_wikipedia(query: str, max_results: int = 3) -> str:
     """Search Wikipedia and return summary text for the top results."""
+    wiki_query = _extract_wiki_query(query)
     search_url = "https://en.wikipedia.org/w/api.php"
     search_params = {
         "action": "query",
         "list": "search",
-        "srsearch": query,
+        "srsearch": wiki_query,
         "srlimit": max_results,
         "format": "json",
     }
