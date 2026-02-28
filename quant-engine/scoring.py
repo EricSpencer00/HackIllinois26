@@ -44,7 +44,7 @@ def get_trade_confidence(question: str, context: str) -> dict:
                 {"role": "user", "content": user_prompt}
             ],
             # Using Llama 3 8B because it is blazing fast on Groq
-            model="llama3-8b-8192", 
+            model="llama-3.3-70b-versatile", 
             temperature=0.2, # Low temperature for more analytical/consistent answers
         )
 

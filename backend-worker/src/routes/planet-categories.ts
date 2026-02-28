@@ -1,6 +1,46 @@
 /**
  * /planet-categories ENDPOINT (GET)
- * - Interacts with: React Frontend.
- * - Returns: A static or dynamic list of the available data sources (Finnhub, Wikipedia, Polymarket).
- * - Gives the frontend the schema it needs to draw the UI before the data even arrives.
+ * Returns the available data sources and their metadata for the planet UI.
  */
+
+export async function handlePlanetCategories(): Promise<Response> {
+  const categories = [
+    {
+      id: 'ai',
+      name: 'AI Analysis',
+      icon: '🧠',
+      color: '#a855f7',
+      description: 'Groq LLM-powered analysis with confidence scoring',
+      orbitRadius: 0,
+    },
+    {
+      id: 'finnhub',
+      name: 'Market Data',
+      icon: '📈',
+      color: '#22c55e',
+      description: 'Real-time stock quotes and financial news from Finnhub',
+      orbitRadius: 1,
+    },
+    {
+      id: 'polymarket',
+      name: 'Prediction Markets',
+      icon: '🎯',
+      color: '#3b82f6',
+      description: 'Live prediction market odds from Polymarket',
+      orbitRadius: 2,
+    },
+    {
+      id: 'wikipedia',
+      name: 'Knowledge Base',
+      icon: '📚',
+      color: '#f59e0b',
+      description: 'Background context and historical data from Wikipedia',
+      orbitRadius: 3,
+    },
+  ];
+
+  return new Response(JSON.stringify({ categories }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

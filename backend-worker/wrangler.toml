@@ -1,0 +1,8 @@
+name = "brightbet-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[vars]
+GROQ_API_KEY = ""
+FINNHUB_API_KEY = ""
+PYTHON_API_URL = "http://localhost:8000"
