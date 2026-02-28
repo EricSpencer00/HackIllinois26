@@ -39,10 +39,11 @@ body {
 .stars-bg {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   background-image: url('https://web.archive.org/web/19961105151523im_/http://www.spacejam.com/cmp/bground.jpg');
   background-repeat: repeat;
   opacity: 0.8;
+  pointer-events: none;
 }
 
 @keyframes twinkle {
@@ -164,16 +165,13 @@ body {
 .search-btn:hover:not(:disabled) {
   background-color: var(--accent-red);
   transform: scale(1.1);
-}
-
-.search-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
 }
 
 .search-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ─── Loading ──────────────────────────────────────────── */
