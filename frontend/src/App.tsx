@@ -58,19 +58,20 @@ function App() {
         {!result && !loading && (
           <div className="hero-section">
             <PlanetView result={null} />
+            <h1 style={{ color: 'var(--accent-orange)', fontSize: '4rem', marginBottom: '20px', fontStyle: 'italic' }}>SPACE JAM AI</h1>
             <p className="hero-subtitle">
-              Ask any trade or prediction question. Our AI analyzes data from multiple
-              sources to give you a confidence score.
+              YOU READY TO RUMBLE? Ask any trade or prediction question. Our AI analyzes data from multiple
+              sources to give you a confidence score. IT'S YOUR CHANCE, DO YOUR DANCE!
             </p>
             <div className="example-questions">
               <button className="example-btn" onClick={() => handleSearch('Will Tesla stock reach $500 by end of 2026?')}>
-                Will Tesla reach $500?
+                TESLA TO $500??
               </button>
               <button className="example-btn" onClick={() => handleSearch('Will Bitcoin hit $200k by December 2026?')}>
-                Will Bitcoin hit $200k?
+                BITCOIN TO $200K??
               </button>
               <button className="example-btn" onClick={() => handleSearch('Will Nvidia remain the most valuable company?')}>
-                Nvidia most valuable co?
+                NVIDIA DOMINATION??
               </button>
             </div>
           </div>

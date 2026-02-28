@@ -4,19 +4,20 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-primary: #0a0a1a;
-  --bg-secondary: #111127;
-  --bg-card: #161633;
-  --text-primary: #f0f0ff;
-  --text-secondary: #9595b8;
-  --accent-purple: #a855f7;
-  --accent-green: #22c55e;
-  --accent-blue: #3b82f6;
-  --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
-  --border: rgba(255, 255, 255, 0.06);
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --bg-primary: #000000;
+  --bg-secondary: #000033;
+  --bg-card: #000066;
+  --text-primary: #ffffff;
+  --text-secondary: #eeeeee;
+  --accent-purple: #ff00ff;
+  --accent-green: #00ff00;
+  --accent-blue: #0000ff;
+  --accent-amber: #ffff00;
+  --accent-red: #ff0000;
+  --accent-orange: #ff6600;
+  --border: 2px solid #ffffff;
+  --font-display: "Times New Roman", Times, serif;
+  --font-body: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 * {
@@ -31,6 +32,7 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  cursor: url("https://cur.cursors-4u.net/games/gam-4/gam371.cur"), auto;
 }
 
 /* ─── Star Background ──────────────────────────────────── */
@@ -38,19 +40,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(2px 2px at 40% 70%, rgba(255, 255, 255, 0.2), transparent),
-    radial-gradient(1px 1px at 60% 20%, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(1px 1px at 80% 50%, rgba(255, 255, 255, 0.2), transparent),
-    radial-gradient(1.5px 1.5px at 10% 80%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(1px 1px at 70% 90%, rgba(255, 255, 255, 0.15), transparent),
-    radial-gradient(1.5px 1.5px at 50% 50%, rgba(255, 255, 255, 0.2), transparent),
-    radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(2px 2px at 30% 90%, rgba(255, 255, 255, 0.15), transparent),
-    radial-gradient(1px 1px at 85% 75%, rgba(255, 255, 255, 0.2), transparent);
-  background-size: 250px 250px;
-  animation: twinkle 10s ease-in-out infinite alternate;
+  background-image: url('https://web.archive.org/web/19961105151523im_/http://www.spacejam.com/cmp/bground.jpg');
+  background-repeat: repeat;
+  opacity: 0.8;
 }
 
 @keyframes twinkle {
@@ -66,13 +58,12 @@ body {
 
 /* ─── Header ───────────────────────────────────────────── */
 .header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px);
-  background: rgba(10, 10, 26, 0.8);
+  padding: 8px;
+  background-image: url("https://web.archive.org/web/19961105151523im_/http://www.spacejam.com/cmp/bground.jpg");
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 4px ridge var(--accent-orange);
 }
 
 .header-inner {
@@ -88,36 +79,33 @@ body {
   align-items: center;
   gap: 10px;
   font-family: var(--font-display);
-}
-
-.logo-icon {
-  font-size: 24px;
-  color: var(--accent-purple);
-  filter: drop-shadow(0 0 8px var(--accent-purple));
+  border: 4px groove var(--accent-orange);
+  padding: 4px 12px;
+  background-color: #000;
+  text-decoration: none;
 }
 
 .logo-text {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--accent-orange);
+  text-shadow: 2px 2px 0 #000, 4px 4px 0 var(--accent-blue);
+  font-style: italic;
+  font-family: "Times New Roman", serif;
 }
 
 .nav-links {
   display: flex;
-  gap: 8px;
+  gap: 15px;
 }
 
 .nav-badge {
   padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
+  font-size: 14px;
+  border: 2px inset gray;
+  background-color: #333;
+  color: #00ff00;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .nav-badge.accent {
@@ -135,56 +123,47 @@ body {
 
 /* ─── Search Bar ───────────────────────────────────────── */
 .search-bar {
-  margin-bottom: 40px;
+  margin-bottom: 60px;
+  border: 10px groove var(--accent-blue);
+  background-color: #000;
+  padding: 10px;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 4px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.search-input-wrapper:focus-within {
-  border-color: var(--accent-purple);
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
-}
-
-.search-icon {
-  padding: 0 16px;
-  font-size: 18px;
-  opacity: 0.5;
+  background-color: #333;
+  border: 4px inset #666;
+  padding: 10px;
 }
 
 .search-input {
   flex: 1;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 16px;
-  padding: 14px 0;
-  outline: none;
+  background-color: #000;
+  border: 2px solid var(--accent-green);
+  color: var(--accent-green);
+  font-size: 24px;
+  padding: 10px;
+  outline: 4px solid var(--accent-orange);
   font-family: var(--font-body);
-}
-
-.search-input::placeholder {
-  color: var(--text-secondary);
 }
 
 .search-btn {
-  padding: 12px 28px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
+  padding: 20px 40px;
+  border: 6px outset #fff;
+  background-color: var(--accent-orange);
+  color: #fff;
+  font-weight: 900;
+  font-size: 24px;
   cursor: pointer;
-  font-family: var(--font-body);
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: "Times New Roman", serif;
+  text-transform: uppercase;
+  margin-left: 20px;
+}
+
+.search-btn:hover:not(:disabled) {
+  background-color: var(--accent-red);
+  transform: scale(1.1);
 }
 
 .search-btn:hover:not(:disabled) {
@@ -257,19 +236,19 @@ body {
 
 /* ─── Confidence Card ──────────────────────────────────── */
 .confidence-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
+  background: #000;
+  border: 10px groove var(--accent-orange);
   padding: 32px;
   margin-bottom: 40px;
 }
 
 .confidence-question {
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 900;
   margin-bottom: 24px;
-  color: var(--text-secondary);
+  color: var(--accent-green);
+  text-transform: uppercase;
 }
 
 .confidence-body {
@@ -278,181 +257,27 @@ body {
   align-items: center;
 }
 
-.confidence-ring-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  flex-shrink: 0;
-}
-
-.confidence-ring {
-  width: 100%;
-  height: 100%;
-}
-
-.confidence-ring-progress {
-  transition: stroke-dashoffset 1.5s ease-out;
-}
-
-.confidence-score-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .confidence-number {
   font-family: var(--font-display);
-  font-size: 56px;
-  font-weight: 800;
+  font-size: 80px;
+  font-weight: 900;
   line-height: 1;
+  color: var(--accent-orange);
+  text-shadow: 4px 4px 0 var(--accent-blue);
 }
 
 .confidence-percent {
   font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-top: 8px;
-}
-
-.confidence-details {
-  flex: 1;
-}
-
-.sentiment-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1px solid;
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-  margin-bottom: 16px;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
 }
 
 .reasoning-text {
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-/* ─── Planet View ──────────────────────────────────────── */
-.planet-view {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
-  margin-bottom: 40px;
-}
-
-.planet-container {
-  position: relative;
-  width: 460px;
-  height: 460px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.orbit-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-/* Center Sun */
-.center-sun {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 2px solid rgba(168, 85, 247, 0.3);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.sun-glow {
-  position: absolute;
-  inset: -40px;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.sun-icon {
-  font-size: 28px;
-  z-index: 1;
-}
-
-.sun-score {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  z-index: 1;
-}
-
-/* Orbiting Planets */
-.orbiting-planet {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  animation: orbit var(--speed) linear infinite;
-  animation-delay: calc(var(--start-angle) / 360 * var(--speed) * -1);
-}
-
-@keyframes orbit {
-  from { transform: rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg); }
-  to { transform: rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg); }
-}
-
-.planet-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 2px solid var(--planet-color);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--planet-color) 30%, transparent);
-  position: absolute;
-  transform: translate(-50%, -50%);
-  transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-}
-
-.planet-body:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-  box-shadow: 0 0 40px color-mix(in srgb, var(--planet-color) 50%, transparent);
-}
-
-.planet-icon {
+  color: #fff;
   font-size: 18px;
-}
-
-.planet-label {
-  position: absolute;
-  white-space: nowrap;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transform: translate(-50%, 28px);
-  pointer-events: none;
-}
-
-.no-data .planet-body {
-  opacity: 0.4;
+  line-height: 1.5;
+  font-family: var(--font-body);
 }
 
 /* ─── Source Cards ─────────────────────────────────────── */
@@ -464,32 +289,25 @@ body {
 }
 
 .source-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  background: #000;
+  border: 4px ridge #fff;
   padding: 24px;
-  transition: border-color 0.3s, transform 0.2s;
 }
 
 .source-card:hover {
-  transform: translateY(-2px);
+  border-color: var(--accent-green);
 }
 
-.source-card.finnhub { border-top: 3px solid var(--accent-green); }
-.source-card.polymarket { border-top: 3px solid var(--accent-blue); }
-.source-card.wikipedia { border-top: 3px solid var(--accent-amber); }
-
-.source-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
+.source-card.finnhub { border-color: var(--accent-green); overflow: hidden; }
+.source-card.polymarket { border-color: var(--accent-blue); overflow: hidden; }
+.source-card.wikipedia { border-color: var(--accent-amber); overflow: hidden; }
 
 .source-card-header h3 {
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  text-decoration: underline;
 }
 
 .source-icon {
@@ -623,39 +441,45 @@ body {
 /* ─── Hero Section ─────────────────────────────────────── */
 .hero-section {
   text-align: center;
+  border: 15px double var(--accent-orange);
+  padding: 40px;
+  background-color: rgba(0,0,0,0.8);
+  margin-top: 50px;
 }
 
 .hero-subtitle {
-  color: var(--text-secondary);
-  font-size: 16px;
-  max-width: 500px;
-  margin: 0 auto 32px;
-  line-height: 1.7;
+  color: var(--accent-green);
+  font-size: 28px;
+  font-weight: 900;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
 }
 
 .example-questions {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .example-btn {
-  padding: 10px 20px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 13px;
+  padding: 15px 30px;
+  border: 4px ridge white;
+  background-color: var(--bg-card);
+  color: var(--accent-amber);
+  font-size: 18px;
   cursor: pointer;
   font-family: var(--font-body);
   transition: all 0.2s;
+  text-decoration: underline;
 }
 
 .example-btn:hover {
-  border-color: var(--accent-purple);
-  color: var(--text-primary);
-  background: rgba(168, 85, 247, 0.05);
+  background-color: var(--accent-blue);
+  color: #fff;
+  transform: rotate(-5deg);
 }
 
 /* ─── Responsive ───────────────────────────────────────── */

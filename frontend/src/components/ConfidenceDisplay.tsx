@@ -6,64 +6,19 @@ interface Props {
 }
 
 export default function ConfidenceDisplay({ score, sentiment, reasoning, question }: Props) {
-  const getColor = () => {
-    if (score >= 70) return '#22c55e';
-    if (score >= 40) return '#f59e0b';
-    return '#ef4444';
-  };
-
-  const getSentimentEmoji = () => {
-    switch (sentiment.toLowerCase()) {
-      case 'bullish': return '🟢';
-      case 'bearish': return '🔴';
-      default: return '🟡';
-    }
-  };
-
-  const circumference = 2 * Math.PI * 90;
-  const dashOffset = circumference - (score / 100) * circumference;
-
   return (
-    <div className="confidence-card">
-      <h2 className="confidence-question">"{question}"</h2>
-      <div className="confidence-body">
-        <div className="confidence-ring-container">
-          <svg viewBox="0 0 200 200" className="confidence-ring">
-            <circle
-              cx="100"
-              cy="100"
-              r="90"
-              fill="none"
-              stroke="rgba(255,255,255,0.08)"
-              strokeWidth="12"
-            />
-            <circle
-              cx="100"
-              cy="100"
-              r="90"
-              fill="none"
-              stroke={getColor()}
-              strokeWidth="12"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              strokeLinecap="round"
-              transform="rotate(-90 100 100)"
-              className="confidence-ring-progress"
-            />
-          </svg>
-          <div className="confidence-score-text">
-            <span className="confidence-number" style={{ color: getColor() }}>
-              {score}
-            </span>
-            <span className="confidence-percent">%</span>
-          </div>
-        </div>
-        <div className="confidence-details">
-          <div className="sentiment-badge" style={{ borderColor: getColor() }}>
-            {getSentimentEmoji()} {sentiment.toUpperCase()}
-          </div>
-          <p className="reasoning-text">{reasoning}</p>
-        </div>
+    <div className="confidence-display">
+      <h2>"{question}"</h2>
+      <div style={{ marginTop: '1rem', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.25rem' }}>
+        <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
+          Confidence Score: {score}%
+        </p>
+        <p style={{ marginTop: '0.5rem', fontWeight: '500' }}>
+          Sentiment: {sentiment.toUpperCase()}
+        </p>
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>
+          {reasoning}
+        </p>
       </div>
     </div>
   );

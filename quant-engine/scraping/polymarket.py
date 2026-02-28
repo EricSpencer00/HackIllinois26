@@ -10,7 +10,7 @@ API_URL = "https://clob.polymarket.com"
 GAMMA_URL = "https://gamma-api.polymarket.com"
 
 
-def search_markets(query: str, limit: int = 5) -> list:
+def search_markets(query: str, limit: int = 500) -> list:
     """Search Polymarket for relevant prediction markets."""
     try:
         resp = requests.get(
@@ -31,10 +31,6 @@ def search_markets(query: str, limit: int = 5) -> list:
             text = title + " " + desc
             if any(kw in text for kw in keywords if len(kw) > 3):
                 relevant.append(m)
-
-        # If no keyword match, return top markets
-        if not relevant:
-            relevant = markets[:3]
 
         return [
             {

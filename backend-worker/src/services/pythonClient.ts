@@ -141,7 +141,7 @@ export async function fetchPolymarketData(
   query: string
 ): Promise<{ question: string; yes_price: string | null; no_price: string | null; volume: string | null }[]> {
   try {
-    const resp = await fetch(`https://gamma-api.polymarket.com/markets?closed=false&limit=10`);
+    const resp = await fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=500');
     const markets: any[] = await resp.json();
 
     const keywords = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
@@ -150,10 +150,13 @@ export async function fetchPolymarketData(
       return keywords.some((kw) => text.includes(kw));
     });
 
-    if (relevant.length === 0) relevant = markets.slice(0, 3);
+    
 
     return relevant.slice(0, 5).map((m: any) => {
-      const prices = m.outcomePrices;
+      let prices = m.outcomePrices;
+      try {
+        if (typeof prices === 'string') prices = JSON.parse(prices);
+      } catch(e){}
       let yes_price = null;
       let no_price = null;
       if (Array.isArray(prices) && prices.length >= 2) {

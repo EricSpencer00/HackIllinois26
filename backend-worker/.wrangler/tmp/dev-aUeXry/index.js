@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-XZlpr1/checked-fetch.js
+// .wrangler/tmp/bundle-dSq6Zd/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,7 +27,7 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// .wrangler/tmp/bundle-XZlpr1/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-dSq6Zd/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -168,17 +168,20 @@ async function fetchFinnhubNews(symbol, env) {
 __name(fetchFinnhubNews, "fetchFinnhubNews");
 async function fetchPolymarketData(query) {
   try {
-    const resp = await fetch(`https://gamma-api.polymarket.com/markets?closed=false&limit=10`);
+    const resp = await fetch("https://gamma-api.polymarket.com/markets?closed=false&limit=500");
     const markets = await resp.json();
     const keywords = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
     let relevant = markets.filter((m) => {
       const text = ((m.question || m.title || "") + " " + (m.description || "")).toLowerCase();
       return keywords.some((kw) => text.includes(kw));
     });
-    if (relevant.length === 0)
-      relevant = markets.slice(0, 3);
     return relevant.slice(0, 5).map((m) => {
-      const prices = m.outcomePrices;
+      let prices = m.outcomePrices;
+      try {
+        if (typeof prices === "string")
+          prices = JSON.parse(prices);
+      } catch (e) {
+      }
       let yes_price = null;
       let no_price = null;
       if (Array.isArray(prices) && prices.length >= 2) {
@@ -508,7 +511,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-XZlpr1/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-dSq6Zd/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -540,7 +543,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-XZlpr1/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-dSq6Zd/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
