@@ -8,8 +8,11 @@
     "build": "cd ../frontend && npm install && npm run build && cd ../backend-worker"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
     "typescript": "^5.4.0",
-    "wrangler": "^3.100.0",
-    "@cloudflare/workers-types": "^4.20240620.0"
+    "wrangler": "^3.100.0"
+  },
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.4.2"
   }
 }

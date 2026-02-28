@@ -1,17 +1,24 @@
 /**
  * MAIN WORKER ENTRY POINT
  * Routes incoming HTTP requests and handles CORS.
+ * Serves static frontend assets for non-API routes.
  */
 
+import { getAssetFromKV, serveSinglePageApp } from '@cloudflare/kv-asset-handler';
+// @ts-ignore — wrangler injects this virtual module at build time
+import manifestJSON from '__STATIC_CONTENT_MANIFEST';
 import { handleHealth } from './routes/health';
 import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
 
+const assetManifest = JSON.parse(manifestJSON);
+
 export interface Env {
   GROQ_API_KEY: string;
   FINNHUB_API_KEY: string;
   PYTHON_API_URL: string;
+  __STATIC_CONTENT: KVNamespace;
 }
 
 function corsHeaders(): Record<string, string> {
@@ -23,7 +30,7 @@ function corsHeaders(): Record<string, string> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -32,38 +39,75 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    let response: Response;
+    // --- API Routes ---
+    if (path.startsWith('/api') || path === '/health') {
+      let response: Response;
 
-    try {
-      if (path === '/api/health' || path === '/health') {
-        response = await handleHealth();
-      } else if (path === '/api/get-ai-opinion') {
-        response = await handleGetAiOpinion(request, env);
-      } else if (path === '/api/visualize') {
-        response = await handleVisualize(request, env);
-      } else if (path === '/api/planet-categories') {
-        response = await handlePlanetCategories();
-      } else {
-        response = new Response(JSON.stringify({ error: 'Not found' }), {
-          status: 404,
+      try {
+        if (path === '/api/health' || path === '/health') {
+          response = await handleHealth();
+        } else if (path === '/api/get-ai-opinion') {
+          response = await handleGetAiOpinion(request, env);
+        } else if (path === '/api/visualize') {
+          response = await handleVisualize(request, env);
+        } else if (path === '/api/planet-categories') {
+          response = await handlePlanetCategories();
+        } else {
+          response = new Response(JSON.stringify({ error: 'Not found' }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (err: any) {
+        response = new Response(JSON.stringify({ error: err.message || 'Internal error' }), {
+          status: 500,
           headers: { 'Content-Type': 'application/json' },
         });
       }
-    } catch (err: any) {
-      response = new Response(JSON.stringify({ error: err.message || 'Internal error' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
+
+      // Add CORS headers to every API response
+      const newHeaders = new Headers(response.headers);
+      for (const [k, v] of Object.entries(corsHeaders())) {
+        newHeaders.set(k, v);
+      }
+      return new Response(response.body, {
+        status: response.status,
+        headers: newHeaders,
       });
     }
 
-    // Add CORS headers to every response
-    const newHeaders = new Headers(response.headers);
-    for (const [k, v] of Object.entries(corsHeaders())) {
-      newHeaders.set(k, v);
+    // --- Static Assets (Frontend) ---
+    try {
+      return await getAssetFromKV(
+        {
+          request,
+          waitUntil: ctx.waitUntil.bind(ctx),
+        },
+        {
+          ASSET_NAMESPACE: env.__STATIC_CONTENT,
+          ASSET_MANIFEST: assetManifest,
+          mapRequestToAsset: serveSinglePageApp,
+        },
+      );
+    } catch (_e) {
+      // SPA fallback: serve index.html for any unmatched route
+      try {
+        const notFoundRequest = new Request(new URL('/index.html', url.origin).toString(), {
+          headers: request.headers,
+        });
+        return await getAssetFromKV(
+          {
+            request: notFoundRequest,
+            waitUntil: ctx.waitUntil.bind(ctx),
+          },
+          {
+            ASSET_NAMESPACE: env.__STATIC_CONTENT,
+            ASSET_MANIFEST: assetManifest,
+          },
+        );
+      } catch {
+        return new Response('Not Found', { status: 404 });
+      }
     }
-    return new Response(response.body, {
-      status: response.status,
-      headers: newHeaders,
-    });
   },
 };
