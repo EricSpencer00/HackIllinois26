@@ -11,7 +11,7 @@
 
 import type { Env } from '../index';
 import { createCheckoutSession, verifyWebhookSignature } from '../services/stripe';
-import { handleGenerateMeme } from './generate-meme';
+import { handleGenerateImage } from './generate-image';
 
 // ── In-memory session store (lives for the Worker isolate lifetime) ──────────
 // For production, use KV or Durable Objects. For a hackathon demo this is fine
@@ -439,14 +439,14 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
       
       // Generate the free AI meme for the user's question
       const questionToUse = session.question || question;
-      const memeRequest = new Request('https://placeholder.local/api/generate-meme', {
+      const memeRequest = new Request('https://placeholder.local/api/generate-image?type=meme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: questionToUse }),
       });
       
       try {
-        const memeResponse = await handleGenerateMeme(memeRequest, env);
+        const memeResponse = await handleGenerateImage(memeRequest, env);
         const memeData = (await memeResponse.json()) as any;
         
         // Return HTML page displaying the generated meme
