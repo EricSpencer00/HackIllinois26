@@ -71,4 +71,5 @@ cd backend-worker && npx wrangler deploy
 
 
 ##Devpost link:
+https://devpost.com/software/brightbet
 
