@@ -1,19 +1,21 @@
 /**
- * DataOverlay — 3×3 floating grid of source data with confidence in the center.
+ * DataOverlay — Combined chart + data panels with confidence in the center.
  * Fades in during the explosion phase (progress ≥ 0.75).
  */
 
 import { useState } from 'react';
 import type { AiOpinionResponse } from '../api/client';
 import { CATEGORIES } from '../lib/categories';
+import CombinedChart from './CombinedChart';
 
 interface Props {
   result: AiOpinionResponse;
   progress: number;
   selectedCategory: number;
+  onBack?: () => void;
 }
 
-export default function DataOverlay({ result, progress, selectedCategory }: Props) {
+export default function DataOverlay({ result, progress, selectedCategory, onBack }: Props) {
   const visible = progress >= 0.75;
   const category = CATEGORIES[selectedCategory]?.name ?? 'Other';
 
@@ -24,15 +26,19 @@ export default function DataOverlay({ result, progress, selectedCategory }: Prop
     question,
     sources,
     symbol,
+    cryptoId,
   } = result;
 
-  // Build trade URL (preserve existing logic)
+  // Build trade URL
   let tradeUrl: string | undefined;
   if ((sources?.polymarket?.length ?? 0) > 0) {
     tradeUrl = `https://polymarket.com/markets?q=${encodeURIComponent(question)}`;
   } else if (symbol) {
     tradeUrl = `https://robinhood.com/stocks/${symbol}`;
   }
+
+  // Get first polymarket slug for chart
+  const polymarketSlug = sources?.polymarket?.[0]?.slug ?? null;
 
   return (
     <div className={`data-overlay ${visible ? 'visible' : ''}`}>
@@ -41,19 +47,22 @@ export default function DataOverlay({ result, progress, selectedCategory }: Prop
         <span className="data-category-badge">{category}</span>
         <p className="data-question">"{question}"</p>
 
-        {/* 3×3 Data Grid */}
-        <div className="data-grid">
-          {/* Row 1 */}
-          <MarketDataPanel sources={sources} symbol={symbol} />
-          <TechnicalsPanel sources={sources} symbol={symbol} />
-          <CryptoPanel sources={sources} />
+        {/* Combined Chart — replaces the old top row (Market, Technicals, Crypto) */}
+        <CombinedChart
+          symbol={symbol}
+          cryptoId={cryptoId ?? null}
+          polymarketSlug={polymarketSlug}
+          question={question}
+        />
 
-          {/* Row 2 */}
+        {/* 2×3 Data Grid (remaining panels) */}
+        <div className="data-grid data-grid-2x3">
+          {/* Row 1 */}
           <FearGreedPanel sources={sources} />
           <ConfidencePanel score={score} sentiment={sentiment} />
           <PolymarketPanel sources={sources} />
 
-          {/* Row 3 */}
+          {/* Row 2 */}
           <RedditPanel sources={sources} />
           <TrendsPanel sources={sources} />
           <MacroPanel sources={sources} />
@@ -80,6 +89,13 @@ export default function DataOverlay({ result, progress, selectedCategory }: Prop
 
         {/* Buy Trade Now — Stripe x402 checkout */}
         <BuyTradeButton />
+
+        {/* Back button */}
+        {onBack && (
+          <button className="back-button" onClick={onBack}>
+            ← back
+          </button>
+        )}
       </div>
     </div>
   );
@@ -95,104 +111,6 @@ function ConfidencePanel({ score, sentiment }: { score: number; sentiment: strin
       </span>
       <span className="confidence-label">confidence</span>
       <span className="confidence-sentiment">{sentiment}</span>
-    </div>
-  );
-}
-
-function MarketDataPanel({ sources, symbol }: { sources: AiOpinionResponse['sources']; symbol: string | null }) {
-  const fh = sources.finnhub;
-  return (
-    <div className="data-panel">
-      <h4>Market Data{symbol ? ` · ${symbol}` : ''}</h4>
-      {fh ? (
-        <>
-          <span className="value">${fh.quote.price ?? '—'}</span>
-          <span className={`change ${(fh.quote.changePercent ?? 0) >= 0 ? 'positive' : 'negative'}`}>
-            {(fh.quote.changePercent ?? 0) >= 0 ? '▲' : '▼'} {fh.quote.changePercent?.toFixed(2) ?? 0}%
-          </span>
-          {fh.news.length > 0 && (
-            <div style={{ marginTop: 8 }}>
-              {fh.news.slice(0, 2).map((n, i) => (
-                <div key={i} className="news-item">· {n.headline}</div>
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <span className="subtitle">No stock data</span>
-      )}
-    </div>
-  );
-}
-
-function TechnicalsPanel({ sources, symbol }: { sources: AiOpinionResponse['sources']; symbol: string | null }) {
-  const t = sources.technicals;
-  return (
-    <div className="data-panel">
-      <h4>Technicals</h4>
-      {t ? (
-        <div className="item-list">
-          {t.rsi !== null && (
-            <div className="item-row">
-              <span className="item-label">RSI (14)</span>
-              <span className="item-value">{t.rsi.toFixed(1)}</span>
-            </div>
-          )}
-          {t.macd !== null && (
-            <div className="item-row">
-              <span className="item-label">MACD</span>
-              <span className="item-value">{t.macd.toFixed(3)}</span>
-            </div>
-          )}
-          {t.sma50 !== null && (
-            <div className="item-row">
-              <span className="item-label">SMA 50</span>
-              <span className="item-value">${t.sma50.toFixed(0)}</span>
-            </div>
-          )}
-          {t.sma200 !== null && (
-            <div className="item-row">
-              <span className="item-label">SMA 200</span>
-              <span className="item-value">${t.sma200.toFixed(0)}</span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <span className="subtitle">{symbol ? 'Unavailable' : 'Stocks only'}</span>
-      )}
-    </div>
-  );
-}
-
-function CryptoPanel({ sources }: { sources: AiOpinionResponse['sources'] }) {
-  const c = sources.coingecko;
-  return (
-    <div className="data-panel">
-      <h4>Crypto</h4>
-      {c ? (
-        <>
-          <span className="value">${c.price?.toLocaleString() ?? '—'}</span>
-          <span className={`change ${(c.change24h ?? 0) >= 0 ? 'positive' : 'negative'}`}>
-            {(c.change24h ?? 0) >= 0 ? '▲' : '▼'} {c.change24h?.toFixed(2)}% 24h
-          </span>
-          <div className="item-list" style={{ marginTop: 6 }}>
-            {c.change7d !== null && (
-              <div className="item-row">
-                <span className="item-label">7d</span>
-                <span className="item-value">{c.change7d.toFixed(2)}%</span>
-              </div>
-            )}
-            {c.marketCap !== null && (
-              <div className="item-row">
-                <span className="item-label">MCap</span>
-                <span className="item-value">${(c.marketCap / 1e9).toFixed(1)}B</span>
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <span className="subtitle">No crypto detected</span>
-      )}
     </div>
   );
 }

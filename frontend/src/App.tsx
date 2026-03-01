@@ -180,6 +180,10 @@ export default function App() {
             result={result}
             progress={progress}
             selectedCategory={selectedCategory}
+            onBack={() => {
+              if (rafRef.current) cancelAnimationFrame(rafRef.current);
+              setProgress(0);
+            }}
           />
         )}
 

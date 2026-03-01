@@ -57,6 +57,7 @@ export interface AiOpinionResponse {
   reasoning: string;
   question: string;
   symbol: string | null;
+  cryptoId: string | null;
   sources: Source;
 }
 
@@ -108,6 +109,46 @@ export interface VideoGenResponse {
   prompt?: string;
   sentiment: string;
   confidence: number;
+}
+
+// ─── Candle / Chart Data ─────────────────────────────────────
+export interface CandleDataPoint {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface LineDataPoint {
+  time: string;
+  value: number;
+}
+
+export interface ChartSeries {
+  id: string;
+  label: string;
+  type: 'candlestick' | 'line';
+  data: CandleDataPoint[] | LineDataPoint[];
+  color: string;
+}
+
+export interface CandlesResponse {
+  series: ChartSeries[];
+}
+
+export async function getCandles(params: {
+  symbol?: string | null;
+  cryptoId?: string | null;
+  polymarketSlug?: string | null;
+}): Promise<CandlesResponse> {
+  const resp = await fetch(`${API_BASE}/candles`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  if (!resp.ok) return { series: [] };
+  return resp.json();
 }
 
 export async function generateVideo(

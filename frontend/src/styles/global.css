@@ -382,13 +382,70 @@ body {
   padding: 4px 10px;
 }
 
-/* ─── Data grid (3×3 with confidence center) ─── */
+/* ─── Combined Chart ─── */
+.chart-container {
+  width: 100%;
+  max-width: 840px;
+  margin-bottom: 12px;
+  border: 1px solid var(--gray-700);
+  background: var(--black);
+  padding: 12px 8px 4px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  padding: 0 8px 8px;
+  flex-wrap: wrap;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-300);
+}
+
+.chart-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-legend-unit {
+  color: var(--gray-500);
+  margin-left: 2px;
+}
+
+.chart-canvas {
+  width: 100%;
+  min-height: 320px;
+}
+
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  color: var(--gray-500);
+  font-size: 11px;
+}
+
+/* ─── Data grid (2×3 with confidence center) ─── */
 .data-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   width: 100%;
   max-width: 840px;
+}
+
+.data-grid-2x3 {
+  /* Same grid, just fewer rows now */
 }
 
 .data-panel {
@@ -582,6 +639,27 @@ body {
 .buy-trade-btn:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+
+/* ─── Back button ─── */
+.back-button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 28px;
+  border: 1px solid var(--white);
+  color: var(--white);
+  background: var(--black);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: var(--white);
+  color: var(--black);
 }
 
 /* ─── Scroll hint ─── */

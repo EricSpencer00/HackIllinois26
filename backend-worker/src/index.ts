@@ -12,6 +12,7 @@ import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
 import { handleGenerateVideo } from './routes/generate-video';
+import { handleCandles } from './routes/candles';
 import {
   handleRickroll,
   handlePaymentSuccess,
@@ -100,6 +101,8 @@ export default {
           response = await handlePlanetCategories();
         } else if (path === '/api/generate-video') {
           response = await handleGenerateVideo(request, env);
+        } else if (path === '/api/candles') {
+          response = await handleCandles(request, env);
         } else {
           response = new Response(JSON.stringify({ error: 'Not found' }), {
             status: 404,

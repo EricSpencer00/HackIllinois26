@@ -791,3 +791,173 @@ export async function fetchAlphaVantageTechnicals(
     return null;
   }
 }
+
+// ─── STOCK CANDLES (Yahoo Finance — free, no key) ──────────
+export async function fetchFinnhubCandles(
+  symbol: string,
+  _env: Env,
+  _days: number = 90,
+): Promise<{ time: string; open: number; high: number; low: number; close: number }[]> {
+  try {
+    const resp = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?range=3mo&interval=1d`,
+      { headers: { 'User-Agent': 'BrightBet/1.0 (hackathon project)', Accept: 'application/json' } },
+    );
+    if (!resp.ok) return [];
+    const data: any = await resp.json();
+    const result = data?.chart?.result?.[0];
+    if (!result) return [];
+
+    const timestamps = result.timestamp || [];
+    const quote = result.indicators?.quote?.[0];
+    if (!quote) return [];
+
+    const candles: { time: string; open: number; high: number; low: number; close: number }[] = [];
+    for (let i = 0; i < timestamps.length; i++) {
+      const o = quote.open?.[i];
+      const h = quote.high?.[i];
+      const l = quote.low?.[i];
+      const c = quote.close?.[i];
+      if (o == null || h == null || l == null || c == null) continue;
+      candles.push({
+        time: new Date(timestamps[i] * 1000).toISOString().split('T')[0],
+        open: Math.round(o * 100) / 100,
+        high: Math.round(h * 100) / 100,
+        low: Math.round(l * 100) / 100,
+        close: Math.round(c * 100) / 100,
+      });
+    }
+    return candles;
+  } catch {
+    return [];
+  }
+}
+
+// ─── COINGECKO OHLC (historical candles) ────────────────────
+export async function fetchCoinGeckoOHLC(
+  coinId: string,
+  days: number = 90,
+): Promise<{ time: string; open: number; high: number; low: number; close: number }[]> {
+  const headers = { Accept: 'application/json', 'User-Agent': 'BrightBet/1.0 (hackathon project)' };
+
+  try {
+    const resp = await fetch(
+      `https://api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=usd&days=${days}`,
+      { headers },
+    );
+    if (resp.status === 429) {
+      // Rate limited — try CoinCap daily history as fallback
+      return fetchCoinCapCandles(coinId, days);
+    }
+    if (!resp.ok) return [];
+    const data: any[] = await resp.json();
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    // CoinGecko OHLC format: [[timestamp_ms, open, high, low, close], ...]
+    // For 90 days this gives 4-day interval candles
+    // Deduplicate by date (sometimes multiple candles share a date)
+    const byDate = new Map<string, { time: string; open: number; high: number; low: number; close: number }>();
+    for (const d of data) {
+      const date = new Date(d[0]).toISOString().split('T')[0];
+      const existing = byDate.get(date);
+      if (!existing) {
+        byDate.set(date, { time: date, open: d[1], high: d[2], low: d[3], close: d[4] });
+      } else {
+        // Merge: keep first open, max high, min low, last close
+        existing.high = Math.max(existing.high, d[2]);
+        existing.low = Math.min(existing.low, d[3]);
+        existing.close = d[4];
+      }
+    }
+    return Array.from(byDate.values()).sort((a, b) => a.time.localeCompare(b.time));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchCoinCapCandles(coinId: string, days: number): Promise<{ time: string; open: number; high: number; low: number; close: number }[]> {
+  const COINCAP_MAP: Record<string, string> = {
+    bitcoin: 'bitcoin', ethereum: 'ethereum', solana: 'solana',
+    dogecoin: 'dogecoin', cardano: 'cardano', ripple: 'ripple',
+    litecoin: 'litecoin', 'avalanche-2': 'avalanche',
+    'matic-network': 'polygon', polkadot: 'polkadot',
+  };
+  const capId = COINCAP_MAP[coinId] || coinId;
+  const end = Date.now();
+  const start = end - days * 86400000;
+
+  try {
+    const resp = await fetch(
+      `https://api.coincap.io/v2/candles?exchange=binance&interval=d1&baseId=${capId}&quoteId=tether&start=${start}&end=${end}`,
+      { headers: { Accept: 'application/json' } },
+    );
+    if (!resp.ok) return [];
+    const json: any = await resp.json();
+    if (!json.data) return [];
+    return json.data.map((d: any) => ({
+      time: new Date(d.period).toISOString().split('T')[0],
+      open: parseFloat(d.open),
+      high: parseFloat(d.high),
+      low: parseFloat(d.low),
+      close: parseFloat(d.close),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// ─── POLYMARKET PRICE HISTORY ───────────────────────────────
+export async function fetchPolymarketHistory(
+  slug: string,
+): Promise<{ question: string; history: { time: string; value: number }[] } | null> {
+  try {
+    // Step 1: Get token IDs from Gamma API using slug
+    const marketResp = await fetch(
+      `https://gamma-api.polymarket.com/markets?slug=${encodeURIComponent(slug)}&limit=1`,
+    );
+    if (!marketResp.ok) return null;
+    const markets: any[] = await marketResp.json();
+    if (!markets.length) return null;
+
+    const market = markets[0];
+    let tokenIds = market.clobTokenIds;
+    if (typeof tokenIds === 'string') {
+      try {
+        tokenIds = JSON.parse(tokenIds);
+      } catch {
+        return null;
+      }
+    }
+    if (!Array.isArray(tokenIds) || !tokenIds.length) return null;
+
+    // Step 2: Fetch price history for YES token (first token ID)
+    const histResp = await fetch(
+      `https://clob.polymarket.com/prices-history?market=${tokenIds[0]}&interval=max`,
+    );
+    if (!histResp.ok) return null;
+    const histData: any = await histResp.json();
+
+    if (!histData.history || !Array.isArray(histData.history) || histData.history.length === 0) {
+      return null;
+    }
+
+    // Aggregate to daily (take last price per day)
+    const byDate = new Map<string, number>();
+    for (const h of histData.history) {
+      const ts = typeof h.t === 'number' ? h.t : parseInt(h.t, 10);
+      const date = new Date(ts * 1000).toISOString().split('T')[0];
+      byDate.set(date, parseFloat(h.p) * 100); // 0-1 → 0-100%
+    }
+
+    const history = Array.from(byDate.entries())
+      .map(([time, value]) => ({ time, value }))
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    return {
+      question: market.question || market.title || slug,
+      history,
+    };
+  } catch {
+    return null;
+  }
+}

@@ -150,6 +150,7 @@ export async function handleGetAiOpinion(request: Request, env: Env): Promise<Re
     ...aiResult,
     question,
     symbol,
+    cryptoId: cryptoId || null,
     sources: {
       wikipedia: wikiResults,
       polymarket: polyResults,
