@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API REFERENCE // BRIGHTBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ascii-bg" aria-hidden="true"></div>
+  
+  <header class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
+    <nav class="nav">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="api-reference.html" class="nav-link active">API</a>
+      <a href="architecture.html" class="nav-link">ARCH</a>
+      <a href="x402.html" class="nav-link">X402</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 class="hero-title">// API REFERENCE</h1>
+      <p class="hero-subtitle">Complete endpoint documentation for BrightBet APIs</p>
+    </section>
+
+    <!-- Health Check -->
+    <section class="endpoint-section" id="health">
+      <div class="endpoint-header">
+        <span class="endpoint-method method get">GET</span>
+        <code class="endpoint-path">/api/health</code>
+      </div>
+      <p class="endpoint-desc">Health check endpoint to verify the API is running. Returns status information.</p>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "status": "ok",
+  "version": "1.0.0"
+}</pre>
+      </div>
+    </section>
+
+    <!-- Get AI Opinion -->
+    <section class="endpoint-section" id="ai-opinion">
+      <div class="endpoint-header">
+        <span class="endpoint-method method post">POST</span>
+        <code class="endpoint-path">/api/get-ai-opinion</code>
+      </div>
+      <p class="endpoint-desc">
+        Primary endpoint for AI-powered market analysis. Aggregates data from Polymarket, Finnhub, 
+        Wikipedia, Reddit, and more to generate a confidence score and sentiment analysis.
+      </p>
+      
+      <h4 class="params-title">REQUEST BODY</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">question</span><span class="param-required">REQUIRED</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>The prediction question to analyze (e.g., "Will Tesla hit $500?")</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">context</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Additional context to inform the analysis</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">symbol</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Stock ticker symbol (auto-detected if not provided)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">CURL</span>
+          <span class="code-file">Example Request</span>
+        </div>
+        <pre class="code-content">curl -X POST https://brightbet.tech/api/get-ai-opinion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Will Bitcoin hit $200k by December 2026?"
+  }'</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "confidence_score": 68,
+  "sentiment": "bullish",
+  "reasoning": "Based on current market trends, halving cycle analysis...",
+  "question": "Will Bitcoin hit $200k by December 2026?",
+  "symbol": null,
+  "cryptoId": "bitcoin",
+  "sources": {
+    "wikipedia": [...],
+    "polymarket": [...],
+    "finnhub": null,
+    "coingecko": { "price": 95420, "change24h": 2.3 },
+    "fearGreed": { "value": 72, "label": "Greed" },
+    "reddit": [...],
+    "fred": [...]
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Planet Categories -->
+    <section class="endpoint-section" id="categories">
+      <div class="endpoint-header">
+        <span class="endpoint-method method get">GET</span>
+        <code class="endpoint-path">/api/planet-categories</code>
+      </div>
+      <p class="endpoint-desc">Returns the list of prediction categories used for visualization and classification.</p>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "categories": [
+    { "id": "stocks", "name": "Stocks", "icon": "📈", "color": "#4ade80" },
+    { "id": "crypto", "name": "Crypto", "icon": "₿", "color": "#f59e0b" },
+    { "id": "politics", "name": "Politics", "icon": "🏛️", "color": "#3b82f6" },
+    ...
+  ]
+}</pre>
+      </div>
+    </section>
+
+    <!-- Candles -->
+    <section class="endpoint-section" id="candles">
+      <div class="endpoint-header">
+        <span class="endpoint-method method post">POST</span>
+        <code class="endpoint-path">/api/candles</code>
+      </div>
+      <p class="endpoint-desc">
+        Fetches candlestick chart data for stocks, cryptocurrencies, or Polymarket prediction markets.
+      </p>
+      
+      <h4 class="params-title">REQUEST BODY</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">symbol</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Stock ticker symbol (e.g., "TSLA")</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">cryptoId</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>CoinGecko crypto ID (e.g., "bitcoin")</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">polymarketSlug</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Polymarket market slug</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "series": [
+    {
+      "id": "TSLA",
+      "label": "TSLA",
+      "type": "candlestick",
+      "color": "#4ade80",
+      "data": [
+        { "time": "2026-02-01", "open": 280, "high": 295, "low": 275, "close": 290 },
+        ...
+      ]
+    }
+  ]
+}</pre>
+      </div>
+    </section>
+
+    <!-- AI Generation Section -->
+    <section id="ai">
+      <h2 class="section-title">// AI GENERATION ENDPOINTS</h2>
+    </section>
+
+    <!-- Generate Video -->
+    <section class="endpoint-section" id="generate-video">
+      <div class="endpoint-header">
+        <span class="endpoint-method method post">POST</span>
+        <code class="endpoint-path">/api/generate-video</code>
+      </div>
+      <p class="endpoint-desc">
+        Generates an AI visualization image using Cloudflare Workers AI (Stable Diffusion XL). 
+        Creates cinematic planet/nebula imagery based on sentiment and confidence.
+      </p>
+      
+      <h4 class="params-title">REQUEST BODY</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">question</span><span class="param-required">REQUIRED</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>The query to visualize</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">sentiment</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>One of: "bullish", "bearish", "neutral"</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">confidence</span></td>
+            <td><span class="param-type">number</span></td>
+            <td>Confidence score (0-100)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "type": "image",
+  "imageData": "data:image/png;base64,iVBORw0KGgo...",
+  "prompt": "A glowing planet floating in deep space...",
+  "sentiment": "bullish",
+  "confidence": 72
+}</pre>
+      </div>
+    </section>
+
+    <!-- Generate Meme -->
+    <section class="endpoint-section" id="generate-meme">
+      <div class="endpoint-header">
+        <span class="endpoint-method method post">POST</span>
+        <code class="endpoint-path">/api/generate-meme</code>
+      </div>
+      <p class="endpoint-desc">
+        Generates a humorous AI meme image using Stable Diffusion XL. Creates meme-style 
+        imagery based on the input question with random meme formats.
+      </p>
+      
+      <h4 class="params-title">REQUEST BODY</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">question</span><span class="param-required">REQUIRED</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>The topic for the meme (e.g., "chance of god coming to earth")</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">CURL</span>
+          <span class="code-file">Example Request</span>
+        </div>
+        <pre class="code-content">curl -X POST https://brightbet.tech/api/generate-meme \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Will Elon buy Twitter again?"}'</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK</span>
+        </div>
+        <pre class="code-content">{
+  "type": "meme",
+  "imageData": "data:image/png;base64,iVBORw0KGgo...",
+  "question": "Will Elon buy Twitter again?",
+  "prompt": "A hilarious internet meme image..."
+}</pre>
+      </div>
+    </section>
+
+    <!-- Rickroll / Paywalled Content -->
+    <section class="endpoint-section" id="rickroll">
+      <div class="endpoint-header">
+        <span class="endpoint-method method get">GET</span>
+        <code class="endpoint-path">/api/rickroll</code>
+      </div>
+      <p class="endpoint-desc">
+        Paywalled endpoint demonstrating the x402 payment protocol. Returns a 402 Payment Required 
+        response with Stripe checkout URL. After payment, generates a custom AI meme.
+      </p>
+      
+      <h4 class="params-title">QUERY PARAMETERS</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">question</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Topic for AI meme generation after payment</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">paid_session</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Session ID from completed payment</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">402 Payment Required</span>
+        </div>
+        <pre class="code-content">{
+  "error": "Payment required",
+  "resource": {
+    "url": "https://brightbet.tech/api/rickroll?question=...",
+    "description": "Free AI meme generator: ...",
+    "mimeType": "text/html"
+  },
+  "paymentOptions": {
+    "stripe": {
+      "checkoutUrl": "https://checkout.stripe.com/c/pay/...",
+      "sessionId": "a091a45b-1865-4b92-...",
+      "expiresAt": "2026-03-01T02:00:00.000Z"
+    }
+  },
+  "message": "Pay $0.50 via Stripe to generate your free AI meme!"
+}</pre>
+      </div>
+    </section>
+
+    <!-- Visualize -->
+    <section class="endpoint-section" id="visualize">
+      <div class="endpoint-header">
+        <span class="endpoint-method method post">POST</span>
+        <code class="endpoint-path">/api/visualize</code>
+      </div>
+      <p class="endpoint-desc">
+        Returns visualization configuration data for the frontend 3D scene based on sentiment and category.
+      </p>
+      
+      <h4 class="params-title">REQUEST BODY</h4>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>PARAMETER</th>
+            <th>TYPE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">sentiment</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Market sentiment (bullish/bearish/neutral)</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">confidence</span></td>
+            <td><span class="param-type">number</span></td>
+            <td>Confidence percentage (0-100)</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">category</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Prediction category ID</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <pre class="footer-ascii">
+  *    .  *       .             *
+                       *
+   *   .        *          .        .   *
+      </pre>
+      <p class="footer-text">BRIGHTBET // HACKILLINOIS 2026</p>
+      <p class="footer-links">
+        <a href="https://github.com/EricSpencer00/HackIllinois26">GITHUB</a>
+        <span class="separator">|</span>
+        <a href="https://brightbet.tech">LIVE DEMO</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCHITECTURE // BRIGHTBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ascii-bg" aria-hidden="true"></div>
+  
+  <header class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
+    <nav class="nav">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="api-reference.html" class="nav-link">API</a>
+      <a href="architecture.html" class="nav-link active">ARCH</a>
+      <a href="x402.html" class="nav-link">X402</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 class="hero-title">// SYSTEM ARCHITECTURE</h1>
+      <p class="hero-subtitle">Four-layer microservices architecture for real-time predictions</p>
+    </section>
+
+    <!-- System Diagram -->
+    <section class="mb-40">
+      <h2 class="section-title">// SYSTEM OVERVIEW</h2>
+      <div class="arch-diagram">
+        <pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              CLIENT LAYER                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  React + Three.js Frontend                                          │   │
+│  │  ├── ASCII Effect Renderer (WebGL)                                  │   │
+│  │  ├── Real-time 3D Planet Visualizations                             │   │
+│  │  └── Brutalist UI Components                                        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           EDGE GATEWAY LAYER                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  Cloudflare Worker (brightbet.tech)                                 │   │
+│  │  ├── API Router & CORS                                              │   │
+│  │  ├── Static Asset Serving (KV)                                      │   │
+│  │  ├── Workers AI Integration (Stable Diffusion)                      │   │
+│  │  └── x402 Payment Middleware                                        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    ▼                               ▼
+┌───────────────────────────────┐  ┌───────────────────────────────────────────┐
+│       QUANT ENGINE            │  │           x402 PAYMENT SERVICE            │
+│  ┌─────────────────────────┐  │  │  ┌─────────────────────────────────────┐  │
+│  │  Python FastAPI         │  │  │  │  Stripe Integration                 │  │
+│  │  ├── Data Aggregation   │  │  │  │  ├── Checkout Sessions              │  │
+│  │  ├── Groq LLM Inference │  │  │  │  ├── Webhook Handlers               │  │
+│  │  └── Scoring Engine     │  │  │  │  └── Session Management             │  │
+│  └─────────────────────────┘  │  │  └─────────────────────────────────────┘  │
+└───────────────────────────────┘  └───────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DATA SOURCE LAYER                                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │Polymarket│ │ Finnhub  │ │Wikipedia │ │CoinGecko │ │  Reddit  │          │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                    │
+│  │  FRED    │ │ Google   │ │Fear/Greed│                                    │
+│  │(Macro)   │ │ Trends   │ │  Index   │                                    │
+│  └──────────┘ └──────────┘ └──────────┘                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <!-- Components -->
+    <section class="mb-40" id="frontend">
+      <h2 class="section-title">// FRONTEND</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="card-header">
+            <span class="card-icon">⚛</span>
+            <h2 class="card-title">REACT 18</h2>
+          </div>
+          <p class="card-desc">SPA with hooks-based architecture. Vite for lightning-fast HMR and optimized builds.</p>
+          <code class="card-code">frontend/src/</code>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="card-icon">△</span>
+            <h2 class="card-title">THREE.JS</h2>
+          </div>
+          <p class="card-desc">WebGL-powered 3D scene with custom ASCII effect renderer. Real-time planet animations.</p>
+          <code class="card-code">AsciiScene.tsx</code>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="card-icon">▪</span>
+            <h2 class="card-title">BRUTALIST UI</h2>
+          </div>
+          <p class="card-desc">Monospace typography, black/white palette, minimal borders, no rounded corners.</p>
+          <code class="card-code">styles/global.css</code>
+        </article>
+      </div>
+    </section>
+
+    <!-- Backend Worker -->
+    <section class="mb-40" id="worker">
+      <h2 class="section-title">// CLOUDFLARE WORKER</h2>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">STRUCTURE</span>
+          <span class="code-file">backend-worker/</span>
+        </div>
+        <pre class="code-content">backend-worker/
+├── src/
+│   ├── index.ts           # Main router, CORS, static serving
+│   ├── routes/
+│   │   ├── health.ts      # Health check endpoint
+│   │   ├── get-ai-opinion.ts    # AI inference orchestration
+│   │   ├── visualize.ts   # Visualization data
+│   │   ├── planet-categories.ts # Category definitions
+│   │   ├── generate-video.ts    # AI image generation
+│   │   ├── generate-meme.ts     # AI meme generation
+│   │   ├── candles.ts     # Chart data endpoint
+│   │   └── x402-payment.ts      # Payment flow handlers
+│   └── services/
+│       ├── stripe.ts      # Stripe checkout integration
+│       └── pythonClient.ts      # Quant engine client
+├── wrangler.toml          # Worker configuration
+└── tests/                 # Vitest test suite</pre>
+      </div>
+
+      <div class="tech-stack">
+        <div class="tech-item">
+          <h3 class="tech-name">WORKERS AI</h3>
+          <p class="tech-desc">Stable Diffusion XL Base 1.0 for image generation. No API key needed.</p>
+        </div>
+        <div class="tech-item">
+          <h3 class="tech-name">KV STORAGE</h3>
+          <p class="tech-desc">Static asset serving with __STATIC_CONTENT namespace. SPA fallback routing.</p>
+        </div>
+        <div class="tech-item">
+          <h3 class="tech-name">EDGE DEPLOYMENT</h3>
+          <p class="tech-desc">Global edge network with sub-50ms cold starts. Auto-scaling.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quant Engine -->
+    <section class="mb-40" id="quant">
+      <h2 class="section-title">// QUANT ENGINE</h2>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">STRUCTURE</span>
+          <span class="code-file">quant-engine/</span>
+        </div>
+        <pre class="code-content">quant-engine/
+├── app.py                 # FastAPI server, main routes
+├── scoring.py             # Confidence score calculation
+├── scraping/
+│   ├── __init__.py
+│   ├── polymarket.py      # Polymarket API scraping
+│   ├── finnHub.py         # Finnhub stock data
+│   └── wikipedia.py       # Wikipedia context
+├── requirements.txt       # Python dependencies
+└── tests/                 # Pytest test suite</pre>
+      </div>
+
+      <h3 class="params-title mt-40">DATA AGGREGATION FLOW</h3>
+      <div class="arch-diagram">
+        <pre>
+┌─────────────┐    ┌─────────────────────────────────────────────┐
+│  /api/      │    │              CONCURRENT FETCH               │
+│  analyze    │───▶│  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
+│             │    │  │Polymarket│ │ Finnhub │ │Wikipedia│       │
+└─────────────┘    │  └────┬────┘ └────┬────┘ └────┬────┘       │
+                   │       │           │           │             │
+                   │       └───────────┼───────────┘             │
+                   │                   ▼                         │
+                   │         ┌─────────────────┐                 │
+                   │         │ Context Builder │                 │
+                   │         └────────┬────────┘                 │
+                   │                  ▼                          │
+                   │         ┌─────────────────┐                 │
+                   │         │   Groq LLM      │                 │
+                   │         │   (Llama 3)     │                 │
+                   │         └────────┬────────┘                 │
+                   │                  ▼                          │
+                   │         ┌─────────────────┐                 │
+                   │         │ Scoring Engine  │                 │
+                   │         └────────┬────────┘                 │
+                   └──────────────────┼──────────────────────────┘
+                                      ▼
+                              { confidence_score,
+                                sentiment,
+                                reasoning,
+                                sources }
+        </pre>
+      </div>
+
+      <div class="tech-stack">
+        <div class="tech-item">
+          <h3 class="tech-name">GROQ</h3>
+          <p class="tech-desc">Llama 3 70B inference with ~100ms latency. JSON mode for structured output.</p>
+        </div>
+        <div class="tech-item">
+          <h3 class="tech-name">CONCURRENT.FUTURES</h3>
+          <p class="tech-desc">ThreadPoolExecutor for parallel API calls. ~500ms total latency.</p>
+        </div>
+        <div class="tech-item">
+          <h3 class="tech-name">PYDANTIC</h3>
+          <p class="tech-desc">Request/response validation. Type-safe API contracts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Sources -->
+    <section class="mb-40" id="sources">
+      <h2 class="section-title">// DATA SOURCES</h2>
+      
+      <table class="endpoint-table">
+        <thead>
+          <tr>
+            <th>SOURCE</th>
+            <th>DATA TYPE</th>
+            <th>USAGE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Polymarket</td>
+            <td>Prediction markets</td>
+            <td>Market sentiment, yes/no prices, volume</td>
+          </tr>
+          <tr>
+            <td>Finnhub</td>
+            <td>Stock data</td>
+            <td>Quotes, news, company sentiment</td>
+          </tr>
+          <tr>
+            <td>CoinGecko</td>
+            <td>Crypto data</td>
+            <td>Prices, 24h/7d changes, market cap</td>
+          </tr>
+          <tr>
+            <td>Wikipedia</td>
+            <td>Background info</td>
+            <td>Entity context, historical data</td>
+          </tr>
+          <tr>
+            <td>Reddit</td>
+            <td>Social sentiment</td>
+            <td>Popular posts, community sentiment</td>
+          </tr>
+          <tr>
+            <td>FRED</td>
+            <td>Macro data</td>
+            <td>GDP, unemployment, interest rates</td>
+          </tr>
+          <tr>
+            <td>Fear & Greed</td>
+            <td>Market index</td>
+            <td>Overall market sentiment (0-100)</td>
+          </tr>
+          <tr>
+            <td>Google Trends</td>
+            <td>Search interest</td>
+            <td>Popularity trends, related queries</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Deployment -->
+    <section class="mb-40" id="deployment">
+      <h2 class="section-title">// DEPLOYMENT</h2>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">COMMANDS</span>
+          <span class="code-file">deploy</span>
+        </div>
+        <pre class="code-content"># Deploy Cloudflare Worker (includes frontend build)
+cd backend-worker && wrangler deploy
+
+# Start Quant Engine locally
+cd quant-engine && uvicorn app:app --reload --port 8000
+
+# Run frontend dev server
+cd frontend && npm run dev
+
+# Run all tests
+cd backend-worker && npm test
+cd quant-engine && pytest
+cd frontend && npm test</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <pre class="footer-ascii">
+  *    .  *       .             *
+                       *
+   *   .        *          .        .   *
+      </pre>
+      <p class="footer-text">BRIGHTBET // HACKILLINOIS 2026</p>
+      <p class="footer-links">
+        <a href="https://github.com/EricSpencer00/HackIllinois26">GITHUB</a>
+        <span class="separator">|</span>
+        <a href="https://brightbet.tech">LIVE DEMO</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
