@@ -1723,6 +1723,17 @@ a {
   gap: 32px;
 }
 
+/* when the nav lives inside the sidebar we want a vertical stack
+   (similar to Stripe's documentation sidebar) instead of the default
+   horizontal header-style layout */
+.sidebar .nav {
+  /* make this declaration highly specific so later rules (like the
+     responsive .nav gap adjustment) don't accidentally override it */
+  flex-direction: column !important;
+  align-items: flex-start;          /* keep links flush to left edge */
+  gap: 24px !important;
+}
+
 .nav-link {
   font-size: 11px;
   letter-spacing: 0.15em;
