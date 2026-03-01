@@ -4,6 +4,8 @@
 
 > "Is this trade good or not?" → Get a confidence score backed by real data.
 
+[brightbet.tech/docs](https://brightbet.tech/docs)
+
 ## What It Does
 
 Ask any trade or prediction question. BrightBet scrapes context from multiple live data sources, feeds it to an AI, and returns a confidence score with reasoning.
