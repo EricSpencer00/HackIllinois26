@@ -1727,11 +1727,15 @@ a {
    (similar to Stripe's documentation sidebar) instead of the default
    horizontal header-style layout */
 .sidebar .nav {
-  /* make this declaration highly specific so later rules (like the
-     responsive .nav gap adjustment) don't accidentally override it */
+  /* stronger vertical spacing and alignment for readability */
   flex-direction: column !important;
   align-items: flex-start;          /* keep links flush to left edge */
-  gap: 24px !important;
+  gap: 32px !important;             /* more breathing room between items */
+}
+
+/* give the logo some separation from the first link */
+.sidebar .logo {
+  margin-bottom: 40px;
 }
 
 .nav-link {
