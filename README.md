@@ -43,14 +43,77 @@ pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+## Features
+
+- 🤖 **AI-Powered Analysis** — Groq Llama 3.3 70B returns confidence score + reasoning
+- 📊 **Multi-Source Data** — Parallel scraping from Finnhub, Polymarket, Wikipedia
+- 🎨 **AI-Generated Visuals** — Stable Diffusion XL meme/planet images via Cloudflare Workers AI
+- 💳 **Premium Features** — HTTP 402 payment flow with Stripe x402 for unlocking meme generation
+- 📚 **Live Documentation** — Sidebar-based docs with copy-to-clipboard code examples
+- ⚡ **Edge Computing** — Serverless architecture on Cloudflare Workers (zero cold start)
+
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |---|---|---|
 | `/api/health` | GET | Heartbeat check |
-| `/api/get-ai-opinion` | POST | Full analysis: scrape + AI inference |
-| `/api/planet-categories` | GET | Data source metadata for UI |
-| `/api/visualize` | GET/POST | Raw scraped data for visualization |
+| `/api/get-ai-opinion` | POST | Full analysis: scrape data sources + run LLM inference |
+| `/api/planet-categories` | GET | Data source names for UI rendering |
+| `/api/visualize` | GET/POST | Raw scraped data for charts/visualization |
+| `/api/generate-image` | GET/POST | AI-generated planet visual or meme (with `?type=meme`) |
+| `/api/rickroll` | GET | HTTP 402 payment flow for premium features |
+
+## Usage Examples
+
+### Full AI Analysis (POST)
+```bash
+curl -X POST http://localhost:5173/api/get-ai-opinion \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Will Tesla stock hit $500 by 2026?"}'
+```
+
+**Response (200):**
+```json
+{
+  "question": "Will Tesla stock hit $500 by 2026?",
+  "confidence": 0.62,
+  "reasoning": "Tesla at $300, needs 67% growth. Historical returns average 35% annually...",
+  "sources": {
+    "stocks": {"TSLA": {"price": 305.2, "change": 2.1}},
+    "markets": {"Tesla $500 by 2026": "45% odds"},
+    "wiki": "Founded 2003, ~1M vehicles/year..."
+  },
+  "sentiment": "neutral"
+}
+```
+
+**Error Response (400, missing question):**
+```json
+{
+  "error": "Missing required field: question"
+}
+```
+
+### Generate Visualization
+```bash
+# Planet visual
+curl "http://localhost:5173/api/generate-image?question=bullish_tech"
+
+# Premium meme with payment
+curl "http://localhost:5173/api/rickroll?question=funny_loss_meme"
+# Returns: HTTP 402 Payment Required with Stripe checkout URL
+```
+
+### Get Data Categories
+```bash
+curl http://localhost:5173/api/planet-categories
+# Response: ["AI Analysis", "Market Data", "Prediction Markets", "Knowledge Base"]
+```
+
+## Documentation
+
+Full API documentation with copy-to-clipboard examples:
+**Hosted at**: `http://localhost:5173/docs`
 
 ## Tech Stack
 
@@ -67,7 +130,9 @@ uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 cd backend-worker && npx wrangler deploy
 
 # Frontend → Cloudflare Pages (via GitHub)
+```
 
+## Submission
 
 
 ##Devpost link:
