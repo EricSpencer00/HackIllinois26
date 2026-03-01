@@ -238,39 +238,9 @@
       </p>
     </div>
   </footer>
+      <!-- typing animation removed; hero ASCII stays static -->
       <script>
-        (function () {
-          const heroAscii = document.querySelector('.hero-ascii');
-          if (!heroAscii) return;
-          const rawText = heroAscii.textContent || '';
-          const normalized = rawText.replace(/\r/g, '').replace(/^\n+/, '');
-          if (!normalized) return;
-          const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          heroAscii.classList.add('typing');
-          if (prefersReduce) {
-            heroAscii.textContent = normalized;
-            heroAscii.classList.add('typed');
-            heroAscii.classList.remove('typing');
-            return;
-          }
-
-          const totalLength = normalized.length;
-          heroAscii.textContent = ' '.repeat(totalLength);
-          let index = 0;
-          function typeNext() {
-            const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
-            heroAscii.textContent = frame;
-            if (index < totalLength) {
-              index += 1;
-              const delay = 2 + Math.random() * 7;
-              setTimeout(typeNext, delay);
-            } else {
-              heroAscii.classList.add('typed');
-              heroAscii.classList.remove('typing');
-            }
-          }
-          typeNext();
-        })();
+        // no-op
       </script>
 </body>
 </html>

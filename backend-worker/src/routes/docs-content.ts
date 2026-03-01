@@ -241,39 +241,9 @@ export const indexHtml = `<!DOCTYPE html>
       </p>
     </div>
   </footer>
+      <!-- typing animation removed; hero ASCII stays static -->
       <script>
-        (function () {
-          const heroAscii = document.querySelector('.hero-ascii');
-          if (!heroAscii) return;
-          const rawText = heroAscii.textContent || '';
-          const normalized = rawText.replace(/\\r/g, '').replace(/^\\n+/, '');
-          if (!normalized) return;
-          const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          heroAscii.classList.add('typing');
-          if (prefersReduce) {
-            heroAscii.textContent = normalized;
-            heroAscii.classList.add('typed');
-            heroAscii.classList.remove('typing');
-            return;
-          }
-
-          const totalLength = normalized.length;
-          heroAscii.textContent = ' '.repeat(totalLength);
-          let index = 0;
-          function typeNext() {
-            const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
-            heroAscii.textContent = frame;
-            if (index < totalLength) {
-              index += 1;
-              const delay = 2 + Math.random() * 7;
-              setTimeout(typeNext, delay);
-            } else {
-              heroAscii.classList.add('typed');
-              heroAscii.classList.remove('typing');
-            }
-          }
-          typeNext();
-        })();
+        // no-op
       </script>
 </body>
 </html>
@@ -1578,22 +1548,7 @@ a {
   position: relative;
 }
 
-.hero-ascii.typing::after {
-  content: '';
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  width: 2px;
-  height: 1.2em;
-  background: var(--gray-500);
-  animation: blink 1s steps(2) infinite;
-  transform: translateX(-50%);
-}
-
-@keyframes blink {
-  0%, 50%, 100% { opacity: 0.9; }
-  25%, 75% { opacity: 0.2; }
-}
+/* typing caret and blink animation removed */
 
 @media (max-width: 768px) {
   .hero-ascii {
