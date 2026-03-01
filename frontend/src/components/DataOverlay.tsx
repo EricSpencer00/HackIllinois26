@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import type { AiOpinionResponse } from '../api/client';
+import { generateVideo } from '../api/client';
 import { CATEGORIES } from '../lib/categories';
 import CombinedChart from './CombinedChart';
 
@@ -89,6 +90,9 @@ export default function DataOverlay({ result, progress, selectedCategory, onBack
 
         {/* Buy Trade Now — Stripe x402 checkout for Free AI Meme */}
         <BuyTradeButton question={question} />
+
+        {/* Generate AI Visualization — free video generation */}
+        <GenerateVisualizationButton question={question} sentiment={sentiment} confidence={score} />
 
         {/* Back button */}
         {onBack && (
@@ -281,5 +285,92 @@ function BuyTradeButton({ question = 'This is hilarious' }: { question?: string 
       </button>
       {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
     </div>
+  );
+}
+
+function GenerateVisualizationButton({ 
+  question = 'Market Analysis', 
+  sentiment = 'neutral', 
+  confidence = 50 
+}: { 
+  question?: string; 
+  sentiment?: string; 
+  confidence?: number;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    setImageUrl(null);
+    
+    try {
+      const result = await generateVideo(question, sentiment, confidence);
+      if (result?.type === 'image' && result.imageData) {
+        setImageUrl(result.imageData);
+      } else if (result?.type === 'fallback') {
+        setError('AI generation not available, showing fallback visualization');
+      } else {
+        setError('Failed to generate visualization');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Generation failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="trade-link-container" style={{ marginTop: 8 }}>
+        <button
+          className="trade-link"
+          onClick={handleGenerate}
+          disabled={loading}
+          style={{ opacity: 0.8 }}
+        >
+          {loading ? 'Generating...' : '🎨 Visualize Sentiment →'}
+        </button>
+        {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
+      </div>
+      
+      {imageUrl && (
+        <div style={{ 
+          marginTop: 12, 
+          padding: 12, 
+          border: '1px solid #333', 
+          borderRadius: 8,
+          background: '#0a0a0a',
+          textAlign: 'center'
+        }}>
+          <img 
+            src={imageUrl} 
+            alt="AI visualization" 
+            style={{ 
+              maxWidth: '100%', 
+              height: 'auto',
+              borderRadius: 4,
+              marginBottom: 8
+            }} 
+          />
+          <button 
+            onClick={() => setImageUrl(null)}
+            style={{
+              padding: '4px 8px',
+              fontSize: 11,
+              background: '#222',
+              border: '1px solid #333',
+              color: '#aaa',
+              cursor: 'pointer',
+              borderRadius: 4
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </>
   );
 }

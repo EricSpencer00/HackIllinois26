@@ -47,7 +47,7 @@ export async function handleGenerateMeme(request: Request, env: Env): Promise<Re
     // Use Cloudflare Workers AI — Stable Diffusion (free)
     const aiResult = await env.AI.run('@cf/stabilityai/stable-diffusion-xl-base-1.0', {
       prompt: memePrompt,
-      num_steps: 25,
+      num_steps: 20,
     });
 
     // aiResult is a ReadableStream of PNG bytes

@@ -56,7 +56,7 @@ const RICKROLL_HTML = `<!DOCTYPE html>
 </html>`;
 
 /**
- * Generate HTML page to display the AI-generated meme
+ * Generate HTML page to display the AI-generated meme - Brutalist ASCII design
  */
 function generateMemeHtml(question: string, imageData: string): string {
   return `<!DOCTYPE html>
@@ -64,87 +64,180 @@ function generateMemeHtml(question: string, imageData: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your AI-Generated Meme</title>
+  <title>AI MEME // BRIGHTBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --white: #ffffff;
+      --gray-300: #aaaaaa;
+      --gray-500: #666666;
+      --gray-700: #333333;
+      --gray-900: #111111;
+      --black: #000000;
+      --font-mono: 'Space Mono', 'SF Mono', 'Fira Code', monospace;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
+      background: var(--black);
       min-height: 100vh; 
-      font-family: system-ui, sans-serif; 
-      padding: 20px;
+      font-family: var(--font-mono);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 40px;
+    }
+    .logo {
+      text-decoration: none;
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 12px rgba(255,255,255,0.5);
     }
     .container { 
-      text-align: center; 
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
+      width: 100%;
       max-width: 800px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
+    .ascii-border {
+      border: 1px solid var(--gray-700);
+      padding: 32px;
+      position: relative;
+    }
+    .ascii-corner {
+      position: absolute;
+      color: var(--gray-500);
+      font-size: 10px;
+    }
+    .ascii-corner.tl { top: 8px; left: 8px; }
+    .ascii-corner.tr { top: 8px; right: 8px; }
+    .ascii-corner.bl { bottom: 8px; left: 8px; }
+    .ascii-corner.br { bottom: 8px; right: 8px; }
     h1 { 
-      color: #333; 
-      margin-bottom: 0.5rem; 
-      font-size: 2rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
     }
     .question {
-      color: #666;
-      font-size: 1.1rem;
-      margin-bottom: 2rem;
+      color: var(--gray-300);
+      font-size: 13px;
+      margin-bottom: 32px;
+      padding: 16px;
+      border-left: 2px solid var(--gray-700);
       font-style: italic;
     }
     .meme-container {
-      margin: 2rem 0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin: 24px 0;
+      border: 1px solid var(--gray-700);
+      background: var(--gray-900);
     }
     img { 
-      max-width: 100%;
+      width: 100%;
       height: auto;
       display: block;
-      background: #f0f0f0;
     }
-    .footer {
-      margin-top: 2rem;
-      color: #999;
-      font-size: 0.9rem;
+    .meta {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--gray-700);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .badge {
       display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      margin-top: 1rem;
+      border: 1px solid var(--gray-500);
+      color: var(--gray-300);
+      padding: 8px 16px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .powered {
+      color: var(--gray-500);
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 32px;
+      color: var(--gray-300);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--gray-700);
+      padding-bottom: 4px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-link:hover {
+      color: var(--white);
+      border-color: var(--white);
+    }
+    .ascii-art {
+      color: var(--gray-700);
+      font-size: 8px;
+      line-height: 1.2;
+      white-space: pre;
+      margin-top: 40px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>✨ Your AI Meme Generated! ✨</h1>
-    <div class="question">About: "${escapeHtml(question)}"</div>
-    <div class="meme-container">
-      <img src="${imageData}" alt="Generated meme" />
-    </div>
-    <p class="footer">
-      Thanks for supporting free AI generation! 🎨
-    </p>
-    <div class="badge">Powered by Cloudflare AI</div>
+  <div class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
   </div>
+  
+  <div class="container">
+    <div class="ascii-border">
+      <span class="ascii-corner tl">+--</span>
+      <span class="ascii-corner tr">--+</span>
+      <span class="ascii-corner bl">+--</span>
+      <span class="ascii-corner br">--+</span>
+      
+      <h1>// AI MEME GENERATED</h1>
+      <div class="question">"${escapeHtml(question)}"</div>
+      
+      <div class="meme-container">
+        <img src="${imageData}" alt="AI Generated Meme" />
+      </div>
+      
+      <div class="meta">
+        <span class="badge">PAID VIA X402</span>
+        <span class="powered">CLOUDFLARE AI // STABLE DIFFUSION</span>
+      </div>
+    </div>
+    
+    <a href="/" class="back-link">&lt;-- BACK TO BRIGHTBET</a>
+  </div>
+  
+  <pre class="ascii-art">
+    *    .  *       .             *
+                         *
+     *   .        *          .        .   *
+              .      .  *        *
+         *                 .        .
+  .          *       .
+        .        .            .  *
+      *     *          .
+           .     *            *       .
+  </pre>
 </body>
 </html>`;
 }
 
 /**
- * Generate fallback HTML if meme generation fails
+ * Generate fallback HTML if meme generation fails - Brutalist ASCII design
  */
 function generateFallbackHtml(question: string, error: string): string {
   return `<!DOCTYPE html>
@@ -152,59 +245,160 @@ function generateFallbackHtml(question: string, error: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meme Generation - Processing</title>
+  <title>GENERATING // BRIGHTBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --white: #ffffff;
+      --gray-300: #aaaaaa;
+      --gray-500: #666666;
+      --gray-700: #333333;
+      --gray-900: #111111;
+      --black: #000000;
+      --font-mono: 'Space Mono', 'SF Mono', 'Fira Code', monospace;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
+      background: var(--black);
       min-height: 100vh; 
-      font-family: system-ui, sans-serif; 
-      padding: 20px;
+      font-family: var(--font-mono);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+    .logo {
+      text-decoration: none;
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 12px rgba(255,255,255,0.5);
     }
     .container { 
-      text-align: center; 
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
+      width: 100%;
       max-width: 600px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
+    .ascii-border {
+      border: 1px solid var(--gray-700);
+      padding: 32px;
+      position: relative;
+    }
+    .ascii-corner {
+      position: absolute;
+      color: var(--gray-500);
+      font-size: 10px;
+    }
+    .ascii-corner.tl { top: 8px; left: 8px; }
+    .ascii-corner.tr { top: 8px; right: 8px; }
+    .ascii-corner.bl { bottom: 8px; left: 8px; }
+    .ascii-corner.br { bottom: 8px; right: 8px; }
     h1 { 
-      color: #333; 
-      margin-bottom: 1rem; 
-      font-size: 1.5rem;
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
     }
     .message {
-      color: #666;
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 2rem;
+      color: var(--gray-300);
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 24px;
     }
-    .error {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      color: #856404;
-      padding: 1rem;
-      border-radius: 8px;
-      margin: 1rem 0;
-      font-size: 0.9rem;
+    .question-box {
+      padding: 16px;
+      border-left: 2px solid var(--gray-700);
+      color: var(--white);
+      font-style: italic;
+      margin: 24px 0;
+    }
+    .error-box {
+      border: 1px solid var(--gray-700);
+      background: var(--gray-900);
+      padding: 16px;
+      margin: 24px 0;
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+    .error-label {
+      color: var(--gray-300);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--gray-300);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+    }
+    .loading-dots::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 32px;
+      color: var(--gray-300);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--gray-700);
+      padding-bottom: 4px;
+    }
+    .back-link:hover {
+      color: var(--white);
+      border-color: var(--white);
     }
   </style>
 </head>
 <body>
+  <div class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
+  </div>
+  
   <div class="container">
-    <h1>✨ Payment Received! ✨</h1>
-    <div class="message">
-      <p>Thank you for your payment!</p>
-      <p style="margin-top: 1rem;">Your free AI meme about <strong>"${escapeHtml(question)}"</strong> is being generated...</p>
+    <div class="ascii-border">
+      <span class="ascii-corner tl">+--</span>
+      <span class="ascii-corner tr">--+</span>
+      <span class="ascii-corner bl">+--</span>
+      <span class="ascii-corner br">--+</span>
+      
+      <h1>// PAYMENT RECEIVED</h1>
+      <p class="message">Thank you for your payment. Your AI meme is being generated.</p>
+      
+      <div class="question-box">"${escapeHtml(question)}"</div>
+      
+      ${error ? `
+      <div class="error-box">
+        <span class="error-label">SYSTEM_NOTE:</span>
+        ${escapeHtml(error)}
+      </div>
+      ` : `
+      <div class="loading">
+        <span>PROCESSING</span><span class="loading-dots"></span>
+      </div>
+      `}
     </div>
-    ${error ? `<div class="error">Note: ${escapeHtml(error)}</div>` : ''}
-    <p style="color: #999; font-size: 0.9rem; margin-top: 2rem;">
-      Powered by Cloudflare AI ✨
-    </p>
+    
+    <a href="/" class="back-link">&lt;-- BACK TO BRIGHTBET</a>
   </div>
 </body>
 </html>`;
