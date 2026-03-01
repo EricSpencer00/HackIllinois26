@@ -81,8 +81,8 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
       0.1,
       1000,
     );
-    camera.position.set(0, 3, 14);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 1.5, 14);
+    camera.lookAt(0, -1, 0);
 
     /* ── Lighting (strong for punchy ASCII gradients) ─── */
     scene.add(new THREE.AmbientLight(0xffffff, 0.6));
@@ -115,7 +115,7 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
     });
     effect.setSize(window.innerWidth, window.innerHeight);
     effect.domElement.style.color = '#e0e0e0';
-    effect.domElement.style.backgroundColor = '#000000';
+    effect.domElement.style.background = '#000000';
     effect.domElement.style.position = 'absolute';
     effect.domElement.style.inset = '0';
     effect.domElement.style.width = '100%';
@@ -250,10 +250,15 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
 
       /* ── Subtle camera parallax ─── */
       const targetCamX = mouseRef.current.x * 1.2;
-      const targetCamY = 3 + mouseRef.current.y * -0.6 + Math.sin(elapsed * 0.25) * 0.3;
+      const targetCamY = 1.5 + mouseRef.current.y * -0.6 + Math.sin(elapsed * 0.25) * 0.3;
       camera.position.x += (targetCamX - camera.position.x) * 0.03;
       camera.position.y += (targetCamY - camera.position.y) * 0.03;
-      camera.lookAt(0, 0, 0);
+      camera.lookAt(0, -1, 0);
+
+      const cursorX = (mouseRef.current.x * 0.5 + 0.5) * 100;
+      const cursorY = (1 - (mouseRef.current.y * 0.5 + 0.5)) * 100;
+      const ripple = 35 + Math.sin(elapsed * 3.2) * 10;
+      effect.domElement.style.background = `radial-gradient(circle ${ripple}px at ${cursorX}% ${cursorY}%, rgba(255,255,255,0.12), rgba(0,0,0,0) 65%), #000000`;
 
       /* ── Particles always drift ─── */
       for (const pt of particles) {
