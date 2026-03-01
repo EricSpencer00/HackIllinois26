@@ -115,7 +115,14 @@ describe('Worker fetch handler', () => {
       expect(res.status).toBe(405);
     });
 
-    it('/api/generate-video rejects GET with 405', async () => {
+    it('/api/generate-image rejects GET with 405', async () => {
+      const req = new Request('https://brightbet.tech/api/generate-image', { method: 'GET' });
+      const env = createMockEnv();
+      const res = await worker.fetch(req, env, ctx);
+      expect(res.status).toBe(405);
+    });
+
+    it('legacy /api/generate-video still rejects GET (alias)', async () => {
       const req = new Request('https://brightbet.tech/api/generate-video', { method: 'GET' });
       const env = createMockEnv();
       const res = await worker.fetch(req, env, ctx);

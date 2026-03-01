@@ -11,7 +11,7 @@ import { handleHealth } from './routes/health';
 import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
-import { handleGenerateVideo } from './routes/generate-video';
+import { handleGenerateImage } from './routes/generate-image';
 import { handleGenerateMeme } from './routes/generate-meme';
 import { handleCandles } from './routes/candles';
 import {
@@ -106,8 +106,8 @@ export default {
           response = await handleVisualize(request, env);
         } else if (path === '/api/planet-categories') {
           response = await handlePlanetCategories();
-        } else if (path === '/api/generate-video') {
-          response = await handleGenerateVideo(request, env);
+        } else if (path === '/api/generate-image' || path === '/api/generate-video') {
+          response = await handleGenerateImage(request, env);
         } else if (path === '/api/generate-meme') {
           response = await handleGenerateMeme(request, env);
         } else if (path === '/api/candles') {

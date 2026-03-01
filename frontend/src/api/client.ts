@@ -102,7 +102,7 @@ export async function getHealth(): Promise<{ status: string }> {
   return resp.json();
 }
 
-export interface VideoGenResponse {
+export interface ImageGenResponse {
   type: 'image' | 'fallback';
   imageData?: string;   // base64 data URL from CF Workers AI
   error?: string;
@@ -151,13 +151,13 @@ export async function getCandles(params: {
   return resp.json();
 }
 
-export async function generateVideo(
+export async function generateImage(
   question: string,
   sentiment?: string,
   confidence?: number
-): Promise<VideoGenResponse | null> {
+): Promise<ImageGenResponse | null> {
   try {
-    const resp = await fetch(`${API_BASE}/generate-video`, {
+    const resp = await fetch(`${API_BASE}/generate-image`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, sentiment, confidence }),

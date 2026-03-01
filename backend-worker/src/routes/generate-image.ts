@@ -1,12 +1,12 @@
 /**
- * /generate-video ENDPOINT (POST)
+ * /generate-image ENDPOINT (POST)
  * Uses Cloudflare Workers AI (free, built-in) to generate planet visualizations.
  * Returns a base64 image that the frontend animates with CSS effects.
  */
 
 import type { Env } from '../index';
 
-export async function handleGenerateVideo(request: Request, env: Env): Promise<Response> {
+export async function handleGenerateImage(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'POST required' }), {
       status: 405,

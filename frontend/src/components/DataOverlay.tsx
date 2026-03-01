@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import type { AiOpinionResponse } from '../api/client';
-import { generateVideo } from '../api/client';
+import { generateImage } from '../api/client';
 import { CATEGORIES } from '../lib/categories';
 import CombinedChart from './CombinedChart';
 
@@ -91,7 +91,7 @@ export default function DataOverlay({ result, progress, selectedCategory, onBack
         {/* Buy Trade Now — Stripe x402 checkout for Free AI Meme */}
         <BuyTradeButton question={question} />
 
-        {/* Generate AI Visualization — free video generation */}
+        {/* Generate AI Visualization — free image generation */}
         <GenerateVisualizationButton question={question} sentiment={sentiment} confidence={score} />
 
         {/* Back button */}
@@ -307,7 +307,7 @@ function GenerateVisualizationButton({
     setImageUrl(null);
     
     try {
-      const result = await generateVideo(question, sentiment, confidence);
+      const result = await generateImage(question, sentiment, confidence);
       if (result?.type === 'image' && result.imageData) {
         setImageUrl(result.imageData);
       } else if (result?.type === 'fallback') {

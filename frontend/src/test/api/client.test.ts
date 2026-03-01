@@ -4,7 +4,7 @@ import {
   getPlanetCategories,
   getHealth,
   getCandles,
-  generateVideo,
+  generateImage,
 } from '../../api/client';
 import { MOCK_AI_RESPONSE } from '../fixtures';
 
@@ -171,9 +171,9 @@ describe('getCandles', () => {
 });
 
 /* ═══════════════════════════════════════
-   generateVideo
-   ═══════════════════════════════════════ */
-describe('generateVideo', () => {
+  generateImage
+  ═══════════════════════════════════════ */
+describe('generateImage', () => {
   it('sends a POST request with question, sentiment, confidence', async () => {
     const mockResp = {
       type: 'image' as const,
@@ -186,8 +186,8 @@ describe('generateVideo', () => {
       json: () => Promise.resolve(mockResp),
     });
 
-    const result = await generateVideo('Will BTC hit 200k?', 'Bullish', 80);
-    expect(fetchSpy).toHaveBeenCalledWith('/api/generate-video', {
+    const result = await generateImage('Will BTC hit 200k?', 'Bullish', 80);
+    expect(fetchSpy).toHaveBeenCalledWith('/api/generate-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: 'Will BTC hit 200k?', sentiment: 'Bullish', confidence: 80 }),
@@ -197,13 +197,13 @@ describe('generateVideo', () => {
 
   it('returns null on non-ok response', async () => {
     fetchSpy.mockResolvedValueOnce({ ok: false, status: 500 });
-    const result = await generateVideo('test');
+    const result = await generateImage('test');
     expect(result).toBeNull();
   });
 
   it('returns null on fetch exception', async () => {
     fetchSpy.mockRejectedValueOnce(new Error('network error'));
-    const result = await generateVideo('test');
+    const result = await generateImage('test');
     expect(result).toBeNull();
   });
 });
