@@ -7,21 +7,33 @@
 import type { Env } from '../index';
 
 export async function handleGenerateImage(request: Request, env: Env): Promise<Response> {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'POST required' }), {
+  const url = new URL(request.url);
+  const isMeme = url.searchParams.get('type') === 'meme';
+
+  if (request.method !== 'POST' && request.method !== 'GET') {
+    return new Response(JSON.stringify({ error: 'POST or GET required' }), {
       status: 405,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  let body: { question: string; sentiment?: string; confidence?: number };
-  try {
-    body = (await request.json()) as any;
-  } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  let body: { question?: string; sentiment?: string; confidence?: number };
+  if (request.method === 'POST') {
+    try {
+      body = (await request.json()) as any;
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  } else {
+    // GET request - read from query parameters
+    body = {
+      question: url.searchParams.get('question') || undefined,
+      sentiment: url.searchParams.get('sentiment') || undefined,
+      confidence: Number(url.searchParams.get('confidence')) || undefined,
+    };
   }
 
   if (!body.question) {
@@ -34,16 +46,20 @@ export async function handleGenerateImage(request: Request, env: Env): Promise<R
   const sentiment = body.sentiment || 'neutral';
   const confidence = body.confidence ?? 50;
 
-  // Build a cinematic prompt based on sentiment
-  const moodMap: Record<string, string> = {
-    bullish: 'vibrant green aurora, glowing emerald energy, rising golden particles, hopeful cosmic atmosphere, green and gold color palette',
-    bearish: 'deep crimson nebula, swirling red energy, descending dark particles, dramatic stormy cosmos, red and orange color palette',
-    neutral: 'calm blue-violet nebula, balanced energy, drifting silver stardust, serene cosmic atmosphere, purple and blue color palette',
-  };
-
-  const mood = moodMap[sentiment] || moodMap.neutral;
-
-  const prompt = `A glowing planet floating in deep space surrounded by colorful nebula clouds and orbiting light particles, ${mood}, cinematic lighting, futuristic sci-fi, dark starry background, 4K, photorealistic digital art`;
+  let prompt = '';
+  if (isMeme) {
+    // Premium Meme Generation
+    prompt = generateMemePrompt(body.question);
+  } else {
+    // Standard Planet Visualization
+    const moodMap: Record<string, string> = {
+      bullish: 'vibrant green aurora, glowing emerald energy, rising golden particles, hopeful cosmic atmosphere, green and gold color palette',
+      bearish: 'deep crimson nebula, swirling red energy, descending dark particles, dramatic stormy cosmos, red and orange color palette',
+      neutral: 'calm blue-violet nebula, balanced energy, drifting silver stardust, serene cosmic atmosphere, purple and blue color palette',
+    };
+    const mood = moodMap[sentiment] || moodMap.neutral;
+    prompt = `A glowing planet floating in deep space surrounded by colorful nebula clouds and orbiting light particles, ${mood}, cinematic lighting, futuristic sci-fi, dark starry background, 4K, photorealistic digital art`;
+  }
 
   try {
     // Use Cloudflare Workers AI — free, no API key needed
@@ -59,18 +75,19 @@ export async function handleGenerateImage(request: Request, env: Env): Promise<R
     // Convert to base64
     let binary = '';
     for (let i = 0; i < uint8.length; i++) {
-      binary += String.fromCharCode(uint8[i]);
+        binary += String.fromCharCode(uint8[i]);
     }
     const base64 = btoa(binary);
     const dataUrl = `data:image/png;base64,${base64}`;
 
     return new Response(
       JSON.stringify({
-        type: 'image',
+        type: isMeme ? 'meme' : 'image',
         imageData: dataUrl,
         prompt,
         sentiment,
         confidence,
+        question: body.question
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
@@ -78,12 +95,35 @@ export async function handleGenerateImage(request: Request, env: Env): Promise<R
     // If AI fails, return a signal for the frontend to use CSS-only fallback
     return new Response(
       JSON.stringify({
-        type: 'fallback',
+        type: isMeme ? 'error' : 'fallback',
         error: err.message || 'AI generation failed',
         sentiment,
         confidence,
+        question: body.question
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: isMeme ? 500 : 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
+}
+
+/**
+ * Generate a humorous Stable Diffusion prompt from a user's question
+ * to create a funny, meme-like image
+ */
+function generateMemePrompt(question: string): string {
+  // Sanitize and shorten the question
+  const cleanQuestion = question.substring(0, 150).trim();
+
+  // Meme style prompts that work well with Stable Diffusion
+  const memeStyles = [
+    'doge meme format with impact text, comic sans font, comedy, absurdist humor',
+    'Drake meme format, Drake disapproval, funny reaction faces',
+    'surprised Pikachu face reaction, shocked expression, funny meme',
+    'distracted boyfriend meme, pointing, hilarious reaction comic',
+  ];
+
+  const randomMeme = memeStyles[Math.floor(Math.random() * memeStyles.length)];
+
+  // Create a structured prompt that describes the meme content based on the question
+  return `A hilarious internet meme about "${cleanQuestion}". ${randomMeme}. digital art, meme culture, irony, high quality, 4K, expressive facial expressions`;
 }

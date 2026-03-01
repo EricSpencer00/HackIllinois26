@@ -105,21 +105,22 @@ body {
 }
 
 .docs-link {
-  color: var(--gray-100);
+  color: var(--black);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  font-weight: 700;
   text-decoration: none;
-  padding: 6px 12px;
-  border: 1px solid var(--gray-500);
-  background: rgba(255,255,255,0.05);
-  border-radius: 3px;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  padding: 6px 14px;
+  border: 1px solid var(--black);
+  background: rgba(128, 128, 128, 0.4); /* Gray transparent background */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 0 1px var(--white); /* White outer glow to make black border pop */
 }
 
 .docs-link:hover {
-  color: var(--white);
-  border-color: var(--white);
-  background: rgba(255,255,255,0.15);
+  background: rgba(128, 128, 128, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1.5px var(--white), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
@@ -348,16 +349,22 @@ body {
 /* ─── Data overlay ─── */
 .data-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 15;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 72px 24px 32px;
+  justify-content: flex-start; /* Start from top to allow scrolling */
+  padding: 80px 24px 40px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  overflow-y: auto; /* Enable scroll on the overlay itself */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
 }
 
 .data-overlay.visible {
@@ -369,12 +376,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 900px;
+  max-width: 960px;
   width: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  margin: 0 auto;
+  /* Remove fixed constraints to let parent handle scroll */
+  height: auto;
+  overflow: visible;
 }
 
 .data-overlay-inner::-webkit-scrollbar {
@@ -650,6 +657,46 @@ body {
 .trade-link:hover {
   background: var(--white);
   color: var(--black);
+}
+
+.ai-actions-container {
+  width: 100%;
+  margin-top: 32px;
+  max-width: 600px;
+}
+
+.ai-result-preview {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--gray-800);
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.close-preview-btn {
+  background: var(--gray-900);
+  border: 1px solid var(--gray-700);
+  color: var(--gray-300);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-preview-btn:hover {
+  background: var(--gray-800);
+  color: var(--white);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .buy-trade-btn {

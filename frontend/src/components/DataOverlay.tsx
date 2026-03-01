@@ -88,11 +88,12 @@ export default function DataOverlay({ result, progress, selectedCategory, onBack
           </div>
         )}
 
-        {/* Buy Trade Now — Stripe x402 checkout for Free AI Meme */}
-        <BuyTradeButton question={question} />
-
-        {/* Generate AI Visualization — free image generation */}
-        <GenerateVisualizationButton question={question} sentiment={sentiment} confidence={score} />
+        {/* Combined AI Button — Handles both visual and meme creation via single endpoint */}
+        <AiActionButtons 
+          question={question} 
+          sentiment={sentiment || 'neutral'} 
+          confidence={score || 50} 
+        />
 
         {/* Back button */}
         {onBack && (
@@ -250,42 +251,79 @@ function MacroPanel({ sources }: { sources: AiOpinionResponse['sources'] }) {
   );
 }
 
-function BuyTradeButton({ question = 'This is hilarious' }: { question?: string }) {
+function AiActionButtons({ 
+  question, 
+  sentiment, 
+  confidence 
+}: { 
+  question: string; 
+  sentiment: string; 
+  confidence: number;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const handleBuy = async () => {
+  const handleVisualize = async () => {
+    setLoading(true);
+    setError(null);
+    setImageUrl(null);
+    try {
+      const result = await generateImage(question, sentiment, confidence);
+      if (result?.type === 'image' && result.imageData) {
+        setImageUrl(result.imageData);
+      } else {
+        setError('Generation not available');
+      }
+    } catch (err: any) {
+      setError('Failed to generate visualization');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMemePayment = async () => {
     setLoading(true);
     setError(null);
     try {
-      const questionParam = encodeURIComponent(question);
-      const resp = await fetch(`/api/rickroll?question=${questionParam}`);
+      const q = encodeURIComponent(question);
+      const resp = await fetch(`/api/rickroll?question=${q}`);
       const data = await resp.json();
       const checkoutUrl = data?.paymentOptions?.stripe?.checkoutUrl;
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      } else {
-        setError('Could not create checkout session');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      if (checkoutUrl) window.location.href = checkoutUrl;
+      else setError('Checkout unavailable');
+    } catch (err) {
+      setError('Payment setup failed');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="trade-link-container" style={{ marginTop: 12 }}>
-      <button
-        className="trade-link buy-trade-btn"
-        onClick={handleBuy}
-        disabled={loading}
-      >
-        {loading ? 'Opening checkout...' : 'Generate AI Meme for $0.50 →'}
-      </button>
-      {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
+    <div className="ai-actions-container">
+      <div className="trade-link-container" style={{ gap: 12, display: 'flex', flexWrap: 'wrap' }}>
+        <button className="trade-link" onClick={handleVisualize} disabled={loading} style={{ flex: 1, minWidth: 200 }}>
+          {loading ? 'Processing...' : '🎨 Generate Planet Visual →'}
+        </button>
+        <button className="trade-link buy-trade-btn" onClick={handleMemePayment} disabled={loading} style={{ flex: 1, minWidth: 200 }}>
+          {loading ? 'Processing...' : '🔥 Unlock Premium Meme ($0.50) →'}
+        </button>
+      </div>
+      
+      {error && <p style={{ color: '#666', fontSize: 10, marginTop: 8, textAlign: 'center' }}>{error}</p>}
+      
+      {imageUrl && (
+        <div className="ai-result-preview">
+          <img src={imageUrl} alt="AI output" style={{ maxWidth: '100%', borderRadius: 4 }} />
+          <button onClick={() => setImageUrl(null)} className="close-preview-btn">Close</button>
+        </div>
+      )}
     </div>
   );
+}
+
+function BuyTradeButton({ question = 'This is hilarious' }: { question?: string }) {
+  return null; // Combined into AiActionButtons above
 }
 
 function GenerateVisualizationButton({ 
@@ -297,80 +335,5 @@ function GenerateVisualizationButton({
   sentiment?: string; 
   confidence?: number;
 }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  const handleGenerate = async () => {
-    setLoading(true);
-    setError(null);
-    setImageUrl(null);
-    
-    try {
-      const result = await generateImage(question, sentiment, confidence);
-      if (result?.type === 'image' && result.imageData) {
-        setImageUrl(result.imageData);
-      } else if (result?.type === 'fallback') {
-        setError('AI generation not available, showing fallback visualization');
-      } else {
-        setError('Failed to generate visualization');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Generation failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <>
-      <div className="trade-link-container" style={{ marginTop: 8 }}>
-        <button
-          className="trade-link"
-          onClick={handleGenerate}
-          disabled={loading}
-          style={{ opacity: 0.8 }}
-        >
-          {loading ? 'Generating...' : '🎨 Visualize Sentiment →'}
-        </button>
-        {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
-      </div>
-      
-      {imageUrl && (
-        <div style={{ 
-          marginTop: 12, 
-          padding: 12, 
-          border: '1px solid #333', 
-          borderRadius: 8,
-          background: '#0a0a0a',
-          textAlign: 'center'
-        }}>
-          <img 
-            src={imageUrl} 
-            alt="AI visualization" 
-            style={{ 
-              maxWidth: '100%', 
-              height: 'auto',
-              borderRadius: 4,
-              marginBottom: 8
-            }} 
-          />
-          <button 
-            onClick={() => setImageUrl(null)}
-            style={{
-              padding: '4px 8px',
-              fontSize: 11,
-              background: '#222',
-              border: '1px solid #333',
-              color: '#aaa',
-              cursor: 'pointer',
-              borderRadius: 4
-            }}
-          >
-            Close
-          </button>
-        </div>
-      )}
-    </>
-  );
+  return null; // Combined into AiActionButtons above
 }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BRIGHTBET // API DOCS</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
 </head>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
@@ -13,10 +13,10 @@
   <header class="header">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
-      <a href="index.html" class="nav-link active">HOME</a>
-      <a href="api-reference.html" class="nav-link">API</a>
-      <a href="architecture.html" class="nav-link">ARCH</a>
-      <a href="x402.html" class="nav-link">X402</a>
+      <a href="/docs" class="nav-link active">HOME</a>
+      <a href="/docs/api-reference.html" class="nav-link">API</a>
+      <a href="/docs/architecture.html" class="nav-link">ARCH</a>
+      <a href="/docs/x402.html" class="nav-link">X402</a>
     </nav>
   </header>
 
@@ -46,7 +46,7 @@
         </div>
         <p class="card-desc">Primary API gateway handling all public endpoints. Built on Cloudflare Workers for edge deployment.</p>
         <code class="card-code">brightbet.tech/api/*</code>
-        <a href="api-reference.html" class="card-link">VIEW ENDPOINTS →</a>
+        <a href="/docs/api-reference.html" class="card-link">VIEW ENDPOINTS →</a>
       </article>
 
       <article class="card">
@@ -56,7 +56,7 @@
         </div>
         <p class="card-desc">Python FastAPI backend for data aggregation. Scrapes Polymarket, Finnhub, Wikipedia, and computes confidence scores.</p>
         <code class="card-code">localhost:8000/api/*</code>
-        <a href="architecture.html#quant" class="card-link">VIEW ARCHITECTURE →</a>
+        <a href="/docs/architecture.html#quant" class="card-link">VIEW ARCHITECTURE →</a>
       </article>
 
       <article class="card">
@@ -66,7 +66,7 @@
         </div>
         <p class="card-desc">Stripe-based payment gateway implementing the x402 protocol for micropayments and paywalled content.</p>
         <code class="card-code">/api/rickroll (paywalled)</code>
-        <a href="x402.html" class="card-link">VIEW PROTOCOL →</a>
+        <a href="/docs/x402.html" class="card-link">VIEW PROTOCOL →</a>
       </article>
 
       <article class="card">
@@ -76,7 +76,7 @@
         </div>
         <p class="card-desc">Cloudflare Workers AI for cinematic image builds and meme synthesis using Stable Diffusion XL.</p>
         <code class="card-code">/api/generate-image</code>
-        <a href="api-reference.html#ai" class="card-link">VIEW AI ENDPOINTS →</a>
+        <a href="/docs/api-reference.html#ai" class="card-link">VIEW AI ENDPOINTS →</a>
       </article>
     </section>
 
@@ -124,6 +124,51 @@
   "confidence": 64,
   "imageData": "data:image/png;base64,...."
 }</pre>
+      </div>
+    </section>
+
+    <section class="endpoints-overview">
+      <h2 class="section-title">// SYSTEM ARCHITECTURE</h2>
+      <div class="tech-stack-grid">
+        <div class="tech-card">
+          <h3>FRONTEND</h3>
+          <ul>
+            <li>React 18 / Vite</li>
+            <li>TypeScript</li>
+            <li>Three.js Visuals</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>BACKEND</h3>
+          <ul>
+            <li>Cloudflare Workers</li>
+            <li>Workers AI (SDXL)</li>
+            <li>KV Asset Store</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>QUANT ENGINE</h3>
+          <ul>
+            <li>FastAPI / Python 3</li>
+            <li>Llama 3.3 70B</li>
+            <li>Multi-Source Scraping</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-sources">
+      <h2 class="section-title">// DATA SOURCES (PLANETS)</h2>
+      <div class="source-list">
+        <p>The solar-system metaphor maps each planet to a unique data provider:</p>
+        <div class="source-grid">
+          <span>STOCKS: Finnhub</span>
+          <span>CRYPTO: CoinGecko</span>
+          <span>MARKETS: Polymarket</span>
+          <span>SENTIMENT: Reddit</span>
+          <span>MACRO: FRED</span>
+          <span>KNOWLEDGE: Wikipedia</span>
+        </div>
       </div>
     </section>
 
@@ -193,39 +238,39 @@
       </p>
     </div>
   </footer>
-  <script>
-    (function () {
-      const heroAscii = document.querySelector('.hero-ascii');
-      if (!heroAscii) return;
-      const rawText = heroAscii.textContent || '';
-      const normalized = rawText.replace(/\r/g, '').replace(/^\n+/, '');
-      if (!normalized) return;
-      const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      heroAscii.classList.add('typing');
-      if (prefersReduce) {
-        heroAscii.textContent = normalized;
-        heroAscii.classList.add('typed');
-        heroAscii.classList.remove('typing');
-        return;
-      }
+      <script>
+        (function () {
+          const heroAscii = document.querySelector('.hero-ascii');
+          if (!heroAscii) return;
+          const rawText = heroAscii.textContent || '';
+          const normalized = rawText.replace(/\r/g, '').replace(/^\n+/, '');
+          if (!normalized) return;
+          const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          heroAscii.classList.add('typing');
+          if (prefersReduce) {
+            heroAscii.textContent = normalized;
+            heroAscii.classList.add('typed');
+            heroAscii.classList.remove('typing');
+            return;
+          }
 
-      const totalLength = normalized.length;
-      heroAscii.textContent = ' '.repeat(totalLength);
-      let index = 0;
-      function typeNext() {
-        const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
-        heroAscii.textContent = frame;
-        if (index < totalLength) {
-          index += 1;
-          const delay = 2 + Math.random() * 7;
-          setTimeout(typeNext, delay);
-        } else {
-          heroAscii.classList.add('typed');
-          heroAscii.classList.remove('typing');
-        }
-      }
-      typeNext();
-    })();
-  </script>
+          const totalLength = normalized.length;
+          heroAscii.textContent = ' '.repeat(totalLength);
+          let index = 0;
+          function typeNext() {
+            const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
+            heroAscii.textContent = frame;
+            if (index < totalLength) {
+              index += 1;
+              const delay = 2 + Math.random() * 7;
+              setTimeout(typeNext, delay);
+            } else {
+              heroAscii.classList.add('typed');
+              heroAscii.classList.remove('typing');
+            }
+          }
+          typeNext();
+        })();
+      </script>
 </body>
 </html>

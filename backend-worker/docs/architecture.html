@@ -80,6 +80,44 @@
       </div>
     </section>
 
+    <!-- Request Flow -->
+    <section class="mb-40">
+      <h2 class="section-title">// USER REQUEST FLOW</h2>
+      <div class="arch-diagram">
+        <pre>
+USER BROWSER            BACKEND WORKER          QUANT ENGINE          DATA SOURCES
+    │                        │                        │                     │
+    │  1. Submit Question    │                        │                     │
+    │ ────────────────────>  │                        │                     │
+    │                        │  2. Analyze Symbols    │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │  3. Multi-Source    │
+    │                        │                        │     Scraping        │
+    │                        │                        │ ─────────────────>  │
+    │                        │                        │                     │
+    │                        │                        │  4. Technical       │
+    │                        │                        │     Indicators      │
+    │                        │                        │ <─────────────────  │
+    │                        │                        │                     │
+    │                        │  5. Aggregated Context │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │                        │  6. Groq Llama 3.3     │                     │
+    │                        │     70B Inference      │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │                     │
+    │                        │  7. Sentiment &        │                     │
+    │                        │     Confidence Score   │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │  8. Render Solar       │                        │                     │
+    │     System Visuals     │                        │                     │
+    │ <────────────────────  │                        │                     │
+    ▼                        ▼                        ▼                     ▼
+        </pre>
+      </div>
+    </section>
+
     <!-- Components -->
     <section class="mb-40" id="frontend">
       <h2 class="section-title">// FRONTEND</h2>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ARCHITECTURE // BRIGHTBET</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
 </head>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
@@ -13,10 +13,10 @@
   <header class="header">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
-      <a href="index.html" class="nav-link">HOME</a>
-      <a href="api-reference.html" class="nav-link">API</a>
-      <a href="architecture.html" class="nav-link active">ARCH</a>
-      <a href="x402.html" class="nav-link">X402</a>
+      <a href="/docs" class="nav-link">HOME</a>
+      <a href="/docs/api-reference.html" class="nav-link">API</a>
+      <a href="/docs/architecture.html" class="nav-link active">ARCH</a>
+      <a href="/docs/x402.html" class="nav-link">X402</a>
     </nav>
   </header>
 
@@ -33,24 +33,24 @@
         <pre>
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              CLIENT LAYER                                   │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  React + Three.js Frontend                                          │   │
-│  │  ├── ASCII Effect Renderer (WebGL)                                  │   │
-│  │  ├── Real-time 3D Planet Visualizations                             │   │
-│  │  └── Brutalist UI Components                                        │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  React + Three.js Frontend                                          │    │
+│  │  ├── ASCII Effect Renderer (WebGL)                                  │    │
+│  │  ├── Real-time 3D Planet Visualizations                             │    │
+│  │  └── Brutalist UI Components                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           EDGE GATEWAY LAYER                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  Cloudflare Worker (brightbet.tech)                                 │   │
-│  │  ├── API Router & CORS                                              │   │
-│  │  ├── Static Asset Serving (KV)                                      │   │
-│  │  ├── Workers AI Integration (Stable Diffusion)                      │   │
-│  │  └── x402 Payment Middleware                                        │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Cloudflare Worker (brightbet.tech)                                 │    │
+│  │  ├── API Router & CORS                                              │    │
+│  │  ├── Static Asset Serving (KV)                                      │    │
+│  │  ├── Workers AI Integration (Stable Diffusion)                      │    │
+│  │  └── x402 Payment Middleware                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┴───────────────┐
@@ -68,14 +68,52 @@
                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          DATA SOURCE LAYER                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
-│  │Polymarket│ │ Finnhub  │ │Wikipedia │ │CoinGecko │ │  Reddit  │          │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                    │
-│  │  FRED    │ │ Google   │ │Fear/Greed│                                    │
-│  │(Macro)   │ │ Trends   │ │  Index   │                                    │
-│  └──────────┘ └──────────┘ └──────────┘                                    │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │Polymarket│ │ Finnhub  │ │Wikipedia │ │CoinGecko │ │  Reddit  │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                     │
+│  │  FRED    │ │ Google   │ │Fear/Greed│                                     │
+│  │(Macro)   │ │ Trends   │ │  Index   │                                     │
+│  └──────────┘ └──────────┘ └──────────┘                                     │
 └─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <!-- Request Flow -->
+    <section class="mb-40">
+      <h2 class="section-title">// USER REQUEST FLOW</h2>
+      <div class="arch-diagram">
+        <pre>
+USER BROWSER            BACKEND WORKER          QUANT ENGINE          DATA SOURCES
+    │                        │                        │                     │
+    │  1. Submit Question    │                        │                     │
+    │ ────────────────────>  │                        │                     │
+    │                        │  2. Analyze Symbols    │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │  3. Multi-Source    │
+    │                        │                        │     Scraping        │
+    │                        │                        │ ─────────────────>  │
+    │                        │                        │                     │
+    │                        │                        │  4. Technical       │
+    │                        │                        │     Indicators      │
+    │                        │                        │ <─────────────────  │
+    │                        │                        │                     │
+    │                        │  5. Aggregated Context │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │                        │  6. Groq Llama 3.3     │                     │
+    │                        │     70B Inference      │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │                     │
+    │                        │  7. Sentiment &        │                     │
+    │                        │     Confidence Score   │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │  8. Render Solar       │                        │                     │
+    │     System Visuals     │                        │                     │
+    │ <────────────────────  │                        │                     │
+    ▼                        ▼                        ▼                     ▼
         </pre>
       </div>
     </section>
@@ -183,9 +221,9 @@
         <pre>
 ┌─────────────┐    ┌─────────────────────────────────────────────┐
 │  /api/      │    │              CONCURRENT FETCH               │
-│  analyze    │───▶│  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
-│             │    │  │Polymarket│ │ Finnhub │ │Wikipedia│       │
-└─────────────┘    │  └────┬────┘ └────┬────┘ └────┬────┘       │
+│  analyze    │───▶│  ┌─────────┐ ┌─────────┐ ┌─────────┐        │
+│             │    │  │Polymarket | Finnhub │ │Wikipedia│        │
+└─────────────┘    │  └────┬────┘ └────┬────┘ └────┬────┘        │
                    │       │           │           │             │
                    │       └───────────┼───────────┘             │
                    │                   ▼                         │

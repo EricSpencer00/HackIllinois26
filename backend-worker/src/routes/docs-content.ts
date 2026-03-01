@@ -131,6 +131,51 @@ export const indexHtml = `<!DOCTYPE html>
     </section>
 
     <section class="endpoints-overview">
+      <h2 class="section-title">// SYSTEM ARCHITECTURE</h2>
+      <div class="tech-stack-grid">
+        <div class="tech-card">
+          <h3>FRONTEND</h3>
+          <ul>
+            <li>React 18 / Vite</li>
+            <li>TypeScript</li>
+            <li>Three.js Visuals</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>BACKEND</h3>
+          <ul>
+            <li>Cloudflare Workers</li>
+            <li>Workers AI (SDXL)</li>
+            <li>KV Asset Store</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>QUANT ENGINE</h3>
+          <ul>
+            <li>FastAPI / Python 3</li>
+            <li>Llama 3.3 70B</li>
+            <li>Multi-Source Scraping</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-sources">
+      <h2 class="section-title">// DATA SOURCES (PLANETS)</h2>
+      <div class="source-list">
+        <p>The solar-system metaphor maps each planet to a unique data provider:</p>
+        <div class="source-grid">
+          <span>STOCKS: Finnhub</span>
+          <span>CRYPTO: CoinGecko</span>
+          <span>MARKETS: Polymarket</span>
+          <span>SENTIMENT: Reddit</span>
+          <span>MACRO: FRED</span>
+          <span>KNOWLEDGE: Wikipedia</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="endpoints-overview">
       <h2 class="section-title">// ENDPOINT OVERVIEW</h2>
       <table class="endpoint-table">
         <thead>
@@ -752,6 +797,44 @@ export const architectureHtml = `<!DOCTYPE html>
 │  │(Macro)   │ │ Trends   │ │  Index   │                                     │
 │  └──────────┘ └──────────┘ └──────────┘                                     │
 └─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <!-- Request Flow -->
+    <section class="mb-40">
+      <h2 class="section-title">// USER REQUEST FLOW</h2>
+      <div class="arch-diagram">
+        <pre>
+USER BROWSER            BACKEND WORKER          QUANT ENGINE          DATA SOURCES
+    │                        │                        │                     │
+    │  1. Submit Question    │                        │                     │
+    │ ────────────────────>  │                        │                     │
+    │                        │  2. Analyze Symbols    │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │  3. Multi-Source    │
+    │                        │                        │     Scraping        │
+    │                        │                        │ ─────────────────>  │
+    │                        │                        │                     │
+    │                        │                        │  4. Technical       │
+    │                        │                        │     Indicators      │
+    │                        │                        │ <─────────────────  │
+    │                        │                        │                     │
+    │                        │  5. Aggregated Context │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │                        │  6. Groq Llama 3.3     │                     │
+    │                        │     70B Inference      │                     │
+    │                        │ ────────────────────>  │                     │
+    │                        │                        │                     │
+    │                        │  7. Sentiment &        │                     │
+    │                        │     Confidence Score   │                     │
+    │                        │ <────────────────────  │                     │
+    │                        │                        │                     │
+    │  8. Render Solar       │                        │                     │
+    │     System Visuals     │                        │                     │
+    │ <────────────────────  │                        │                     │
+    ▼                        ▼                        ▼                     ▼
         </pre>
       </div>
     </section>
@@ -1885,6 +1968,75 @@ a {
   font-size: 12px;
   color: var(--gray-300);
   line-height: 1.8;
+}
+
+.tech-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 40px 0;
+}
+
+.tech-card {
+  border: 1px solid var(--gray-700);
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+
+.tech-card:hover {
+  border-color: var(--white);
+}
+
+.tech-card h3 {
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  margin-bottom: 20px;
+  color: var(--gray-100);
+}
+
+.tech-card ul {
+  list-style: none;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.tech-card li {
+  margin-bottom: 8px;
+  padding-left: 14px;
+  position: relative;
+}
+
+.tech-card li::before {
+  content: "»";
+  position: absolute;
+  left: 0;
+  color: var(--gray-700);
+}
+
+.data-sources {
+  margin: 80px 0;
+  padding: 40px;
+  background: var(--gray-900);
+  border: 1px dashed var(--gray-700);
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.source-grid span {
+  font-size: 11px;
+  background: var(--black);
+  padding: 8px 12px;
+  border: 1px solid var(--gray-800);
+  color: var(--gray-300);
+}
+
+.endpoints-overview {
+  margin-top: 80px;
 }
 
 /* ─── Utilities ─── */
