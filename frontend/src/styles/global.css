@@ -105,16 +105,15 @@ body {
 }
 
 .docs-link {
-  color: var(--black);
+  color: var(--white) !important;
   font-size: 11px;
   letter-spacing: 0.12em;
   font-weight: 700;
   text-decoration: none;
   padding: 6px 14px;
   border: 1px solid var(--black);
-  background: rgba(128, 128, 128, 0.4); /* Gray transparent background */
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 0 1px var(--white); /* White outer glow to make black border pop */
+  background: var(--black);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .docs-link:hover {

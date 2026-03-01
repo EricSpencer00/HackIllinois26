@@ -303,10 +303,10 @@ function AiActionButtons({
     <div className="ai-actions-container">
       <div className="trade-link-container" style={{ gap: 12, display: 'flex', flexWrap: 'wrap' }}>
         <button className="trade-link" onClick={handleVisualize} disabled={loading} style={{ flex: 1, minWidth: 200 }}>
-          {loading ? 'Processing...' : '🎨 Generate Planet Visual →'}
+          {loading ? 'Processing...' : 'Generate Visualization →'}
         </button>
         <button className="trade-link buy-trade-btn" onClick={handleMemePayment} disabled={loading} style={{ flex: 1, minWidth: 200 }}>
-          {loading ? 'Processing...' : '🔥 Unlock Premium Meme ($0.50) →'}
+          {loading ? 'Processing...' : 'Unlock Premium Meme →'}
         </button>
       </div>
       

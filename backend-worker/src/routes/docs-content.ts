@@ -241,9 +241,61 @@ export const indexHtml = `<!DOCTYPE html>
       </p>
     </div>
   </footer>
-      <!-- typing animation removed; hero ASCII stays static -->
+      <!-- Add copy buttons to code blocks -->
       <script>
-        // no-op
+        (function () {
+          const LABEL = 'COPY';
+          const blocks = document.querySelectorAll('.code-block');
+          if (!blocks.length) return;
+
+          function copyText(text) {
+            const trimmed = text.replace(/\\u00A0/g, ' ').trim();
+            if (navigator.clipboard?.writeText) {
+              return navigator.clipboard.writeText(trimmed);
+            }
+            return new Promise((resolve, reject) => {
+              const textarea = document.createElement('textarea');
+              textarea.value = trimmed;
+              textarea.style.position = 'fixed';
+              textarea.style.left = '-9999px';
+              textarea.style.opacity = '0';
+              document.body.appendChild(textarea);
+              textarea.select();
+              const success = document.execCommand('copy');
+              document.body.removeChild(textarea);
+              success ? resolve() : reject(new Error('execCommand failed'));
+            });
+          }
+
+          blocks.forEach((block) => {
+            const pre = block.querySelector('.code-content');
+            if (!pre) return;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'copy-btn';
+            button.textContent = LABEL;
+            block.appendChild(button);
+            button.addEventListener('click', () => {
+              copyText(pre.innerText || pre.textContent || '')
+                .then(() => {
+                  button.textContent = 'COPIED';
+                  button.classList.add('copied');
+                  setTimeout(() => {
+                    button.textContent = LABEL;
+                    button.classList.remove('copied');
+                  }, 1500);
+                })
+                .catch((err) => {
+                  console.error('Copy failed', err);
+                  button.textContent = 'FAILED';
+                  button.classList.remove('copied');
+                  setTimeout(() => {
+                    button.textContent = LABEL;
+                  }, 1500);
+                });
+            });
+          });
+        })();
       </script>
 </body>
 </html>
@@ -685,6 +737,61 @@ export const apiReferenceHtml = `<!DOCTYPE html>
       </p>
     </div>
   </footer>
+  <script>
+    (function () {
+      const LABEL = 'COPY';
+      const blocks = document.querySelectorAll('.code-block');
+      if (!blocks.length) return;
+
+      function copyText(text) {
+        const trimmed = text.replace(/\\u00A0/g, ' ').trim();
+        if (navigator.clipboard?.writeText) {
+          return navigator.clipboard.writeText(trimmed);
+        }
+        return new Promise((resolve, reject) => {
+          const textarea = document.createElement('textarea');
+          textarea.value = trimmed;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          success ? resolve() : reject(new Error('execCommand failed'));
+        });
+      }
+
+      blocks.forEach((block) => {
+        const pre = block.querySelector('.code-content');
+        if (!pre) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-btn';
+        button.textContent = LABEL;
+        block.appendChild(button);
+        button.addEventListener('click', () => {
+          copyText(pre.innerText || pre.textContent || '')
+            .then(() => {
+              button.textContent = 'COPIED';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+                button.classList.remove('copied');
+              }, 1500);
+            })
+            .catch((err) => {
+              console.error('Copy failed', err);
+              button.textContent = 'FAILED';
+              button.classList.remove('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+              }, 1500);
+            });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
 `;
@@ -1054,6 +1161,61 @@ cd frontend && npm test</pre>
       </p>
     </div>
   </footer>
+  <script>
+    (function () {
+      const LABEL = 'COPY';
+      const blocks = document.querySelectorAll('.code-block');
+      if (!blocks.length) return;
+
+      function copyText(text) {
+        const trimmed = text.replace(/\\u00A0/g, ' ').trim();
+        if (navigator.clipboard?.writeText) {
+          return navigator.clipboard.writeText(trimmed);
+        }
+        return new Promise((resolve, reject) => {
+          const textarea = document.createElement('textarea');
+          textarea.value = trimmed;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          success ? resolve() : reject(new Error('execCommand failed'));
+        });
+      }
+
+      blocks.forEach((block) => {
+        const pre = block.querySelector('.code-content');
+        if (!pre) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-btn';
+        button.textContent = LABEL;
+        block.appendChild(button);
+        button.addEventListener('click', () => {
+          copyText(pre.innerText || pre.textContent || '')
+            .then(() => {
+              button.textContent = 'COPIED';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+                button.classList.remove('copied');
+              }, 1500);
+            })
+            .catch((err) => {
+              console.error('Copy failed', err);
+              button.textContent = 'FAILED';
+              button.classList.remove('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+              }, 1500);
+            });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
 `;
@@ -1407,6 +1569,61 @@ Card: 4000 0025 0000 3155</pre>
       </p>
     </div>
   </footer>
+  <script>
+    (function () {
+      const LABEL = 'COPY';
+      const blocks = document.querySelectorAll('.code-block');
+      if (!blocks.length) return;
+
+      function copyText(text) {
+        const trimmed = text.replace(/\\u00A0/g, ' ').trim();
+        if (navigator.clipboard?.writeText) {
+          return navigator.clipboard.writeText(trimmed);
+        }
+        return new Promise((resolve, reject) => {
+          const textarea = document.createElement('textarea');
+          textarea.value = trimmed;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          success ? resolve() : reject(new Error('execCommand failed'));
+        });
+      }
+
+      blocks.forEach((block) => {
+        const pre = block.querySelector('.code-content');
+        if (!pre) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-btn';
+        button.textContent = LABEL;
+        block.appendChild(button);
+        button.addEventListener('click', () => {
+          copyText(pre.innerText || pre.textContent || '')
+            .then(() => {
+              button.textContent = 'COPIED';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+                button.classList.remove('copied');
+              }, 1500);
+            })
+            .catch((err) => {
+              console.error('Copy failed', err);
+              button.textContent = 'FAILED';
+              button.classList.remove('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+              }, 1500);
+            });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
 `;
@@ -1653,6 +1870,8 @@ a {
 .code-block {
   margin-bottom: 24px;
   border: 1px solid var(--gray-700);
+  position: relative;
+  overflow: hidden;
 }
 
 .code-header {
@@ -1681,6 +1900,32 @@ a {
   overflow-x: auto;
   background: var(--black);
   color: var(--gray-300);
+}
+
+.copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: 1px solid var(--gray-600);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--gray-100);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.copy-btn.copied {
+  background: var(--white);
+  color: var(--black);
+  border-color: var(--white);
 }
 
 /* ─── Tables ─── */

@@ -347,5 +347,60 @@ Card: 4000 0025 0000 3155</pre>
       </p>
     </div>
   </footer>
+  <script>
+    (function () {
+      const LABEL = 'COPY';
+      const blocks = document.querySelectorAll('.code-block');
+      if (!blocks.length) return;
+
+      function copyText(text) {
+        const trimmed = text.replace(/\u00A0/g, ' ').trim();
+        if (navigator.clipboard?.writeText) {
+          return navigator.clipboard.writeText(trimmed);
+        }
+        return new Promise((resolve, reject) => {
+          const textarea = document.createElement('textarea');
+          textarea.value = trimmed;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          success ? resolve() : reject(new Error('execCommand failed'));
+        });
+      }
+
+      blocks.forEach((block) => {
+        const pre = block.querySelector('.code-content');
+        if (!pre) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-btn';
+        button.textContent = LABEL;
+        block.appendChild(button);
+        button.addEventListener('click', () => {
+          copyText(pre.innerText || pre.textContent || '')
+            .then(() => {
+              button.textContent = 'COPIED';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+                button.classList.remove('copied');
+              }, 1500);
+            })
+            .catch((err) => {
+              console.error('Copy failed', err);
+              button.textContent = 'FAILED';
+              button.classList.remove('copied');
+              setTimeout(() => {
+                button.textContent = LABEL;
+              }, 1500);
+            });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
