@@ -108,10 +108,23 @@ a {
   border-bottom-color: var(--white);
 }
 
-/* ─── Main Content ─── */
+/* ─── Layout ─── */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 240px;
+  padding: 40px 20px;
+  background: var(--black);
+  overflow-y: auto;
+  border-right: 1px solid var(--gray-700);
+  z-index: 100;
+}
+
 .main {
-  max-width: 1200px;
-  margin: 0 auto;
+  margin-left: 260px;
+  max-width: 960px;
   padding: 60px 40px;
 }
 

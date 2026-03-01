@@ -13,7 +13,7 @@ export const indexHtml = `<!DOCTYPE html>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
   
-  <header class="header">
+  <aside class="sidebar">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
       <a href="/docs" class="nav-link active">HOME</a>
@@ -21,7 +21,7 @@ export const indexHtml = `<!DOCTYPE html>
       <a href="/docs/architecture.html" class="nav-link">ARCH</a>
       <a href="/docs/x402.html" class="nav-link">X402</a>
     </nav>
-  </header>
+  </aside>
 
   <main class="main">
     <section class="hero">
@@ -313,7 +313,7 @@ export const apiReferenceHtml = `<!DOCTYPE html>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
   
-  <header class="header">
+  <aside class="sidebar">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
       <a href="/docs" class="nav-link">HOME</a>
@@ -321,7 +321,7 @@ export const apiReferenceHtml = `<!DOCTYPE html>
       <a href="/docs/architecture.html" class="nav-link">ARCH</a>
       <a href="/docs/x402.html" class="nav-link">X402</a>
     </nav>
-  </header>
+  </aside>
 
   <main class="main">
     <section class="hero">
@@ -808,7 +808,7 @@ export const architectureHtml = `<!DOCTYPE html>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
   
-  <header class="header">
+  <aside class="sidebar">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
       <a href="/docs" class="nav-link">HOME</a>
@@ -816,7 +816,7 @@ export const architectureHtml = `<!DOCTYPE html>
       <a href="/docs/architecture.html" class="nav-link active">ARCH</a>
       <a href="/docs/x402.html" class="nav-link">X402</a>
     </nav>
-  </header>
+  </aside>
 
   <main class="main">
     <section class="hero">
@@ -1232,15 +1232,15 @@ export const x402Html = `<!DOCTYPE html>
 <body>
   <div class="ascii-bg" aria-hidden="true"></div>
   
-  <header class="header">
+  <aside class="sidebar">
     <a href="/" class="logo">BRIGHTBET</a>
     <nav class="nav">
-      <a href="/docs" class="nav-link">HOME</a>
-      <a href="/docs/api-reference.html" class="nav-link">API</a>
-      <a href="/docs/architecture.html" class="nav-link">ARCH</a>
-      <a href="/docs/x402.html" class="nav-link active">X402</a>
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="api-reference.html" class="nav-link">API</a>
+      <a href="architecture.html" class="nav-link">ARCH</a>
+      <a href="x402.html" class="nav-link active">X402</a>
     </nav>
-  </header>
+  </aside>
 
   <main class="main">
     <section class="hero">
@@ -1738,10 +1738,23 @@ a {
   border-bottom-color: var(--white);
 }
 
-/* ─── Main Content ─── */
+/* ─── Layout ─── */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 240px;
+  padding: 40px 20px;
+  background: var(--black);
+  overflow-y: auto;
+  border-right: 1px solid var(--gray-700);
+  z-index: 100;
+}
+
 .main {
-  max-width: 1200px;
-  margin: 0 auto;
+  margin-left: 260px;
+  max-width: 960px;
   padding: 60px 40px;
 }
 
