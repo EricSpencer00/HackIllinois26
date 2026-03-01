@@ -105,18 +105,21 @@ body {
 }
 
 .docs-link {
-  color: var(--gray-300);
+  color: var(--gray-100);
   font-size: 11px;
   letter-spacing: 0.1em;
   text-decoration: none;
   padding: 6px 12px;
-  border: 1px solid var(--gray-700);
-  transition: color 0.2s, border-color 0.2s;
+  border: 1px solid var(--gray-500);
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .docs-link:hover {
   color: var(--white);
   border-color: var(--white);
+  background: rgba(255,255,255,0.15);
 }
 
 .logo {
