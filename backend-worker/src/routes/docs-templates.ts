@@ -1,0 +1,539 @@
+// Auto-generated docs templates
+// Run: node scripts/generate-docs-templates.js to regenerate
+
+export const STYLES_CSS = `/* ═══════════════════════════════════════════════════════════
+   BRIGHTBET API DOCS — Brutalist ASCII Design
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --white: #ffffff;
+  --gray-100: #e5e5e5;
+  --gray-300: #aaaaaa;
+  --gray-500: #666666;
+  --gray-700: #333333;
+  --gray-800: #1a1a1a;
+  --gray-900: #111111;
+  --black: #000000;
+  --font-mono: 'Space Mono', 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+/* ─── Reset ─── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-mono);
+  background: var(--black);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--white);
+  color: var(--black);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── ASCII Background ─── */
+.ascii-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.03;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ascii-bg::before {
+  content: "·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.·.";
+  display: block;
+  white-space: nowrap;
+  font-size: 12px;
+  animation: scroll 20s linear infinite;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ─── Header ─── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  background: var(--black);
+  border-bottom: 1px solid var(--gray-700);
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 12px rgba(255,255,255,0.5);
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-link {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--gray-300);
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--white);
+  border-bottom-color: var(--white);
+}
+
+/* ─── Main Content ─── */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 40px;
+}
+
+/* ─── Hero Section ─── */
+.hero {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.hero-ascii {
+  font-size: 8px;
+  line-height: 1.2;
+  color: var(--gray-500);
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .hero-ascii {
+    font-size: 5px;
+  }
+}
+
+.hero-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  margin-bottom: 16px;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  color: var(--gray-300);
+  letter-spacing: 0.05em;
+}
+
+/* ─── Grid Layout ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
+/* ─── Cards ─── */
+.card {
+  border: 1px solid var(--gray-700);
+  padding: 32px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: var(--gray-500);
+}
+
+.card-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card-icon {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: var(--gray-300);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.card-code {
+  display: block;
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 24px;
+  padding: 8px 12px;
+  background: var(--gray-900);
+  border-left: 2px solid var(--gray-700);
+}
+
+.card-link {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gray-300);
+  border-bottom: 1px solid var(--gray-700);
+  padding-bottom: 4px;
+  transition: all 0.2s;
+}
+
+.card-link:hover {
+  color: var(--white);
+  border-bottom-color: var(--white);
+}
+
+/* ─── Sections ─── */
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-700);
+}
+
+/* ─── Code Blocks ─── */
+.code-block {
+  margin-bottom: 24px;
+  border: 1px solid var(--gray-700);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--gray-900);
+  border-bottom: 1px solid var(--gray-700);
+}
+
+.code-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+}
+
+.code-file {
+  font-size: 10px;
+  color: var(--gray-500);
+}
+
+.code-content {
+  padding: 20px;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  background: var(--black);
+  color: var(--gray-300);
+}
+
+/* ─── Tables ─── */
+.endpoint-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.endpoint-table th,
+.endpoint-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-700);
+}
+
+.endpoint-table th {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--gray-500);
+  font-weight: 400;
+}
+
+.endpoint-table td {
+  color: var(--gray-300);
+}
+
+.endpoint-table tr:hover td {
+  background: var(--gray-900);
+}
+
+.method {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  border: 1px solid;
+}
+
+.method.get {
+  color: #4ade80;
+  border-color: #4ade80;
+}
+
+.method.post {
+  color: #60a5fa;
+  border-color: #60a5fa;
+}
+
+.method.delete {
+  color: #f87171;
+  border-color: #f87171;
+}
+
+/* ─── Quick Start ─── */
+.quick-start {
+  margin-bottom: 80px;
+}
+
+/* ─── Footer ─── */
+.footer {
+  border-top: 1px solid var(--gray-700);
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.footer-ascii {
+  font-size: 8px;
+  line-height: 1.2;
+  color: var(--gray-700);
+  margin-bottom: 24px;
+}
+
+.footer-text {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+
+.footer-links {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.footer-links a {
+  color: var(--gray-300);
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--white);
+}
+
+.separator {
+  margin: 0 16px;
+  color: var(--gray-700);
+}
+
+/* ─── API Reference Page ─── */
+.endpoint-section {
+  margin-bottom: 60px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--gray-700);
+}
+
+.endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.endpoint-method {
+  padding: 8px 16px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  border: 1px solid;
+}
+
+.endpoint-path {
+  font-size: 14px;
+  color: var(--gray-300);
+}
+
+.endpoint-desc {
+  font-size: 13px;
+  color: var(--gray-300);
+  line-height: 1.8;
+  margin-bottom: 24px;
+  max-width: 700px;
+}
+
+.params-title {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 24px;
+}
+
+.params-table th,
+.params-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border: 1px solid var(--gray-700);
+}
+
+.params-table th {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+  background: var(--gray-900);
+}
+
+.param-name {
+  color: var(--white);
+}
+
+.param-type {
+  color: var(--gray-500);
+  font-size: 10px;
+}
+
+.param-required {
+  color: #f87171;
+  font-size: 9px;
+  margin-left: 8px;
+}
+
+/* ─── Architecture Page ─── */
+.arch-diagram {
+  padding: 32px;
+  border: 1px solid var(--gray-700);
+  margin-bottom: 40px;
+  overflow-x: auto;
+}
+
+.arch-diagram pre {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--gray-300);
+  white-space: pre;
+}
+
+.tech-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.tech-item {
+  padding: 20px;
+  border: 1px solid var(--gray-700);
+}
+
+.tech-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.tech-desc {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+/* ─── X402 Page ─── */
+.flow-step {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 24px;
+  border: 1px solid var(--gray-700);
+}
+
+.flow-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-700);
+  flex-shrink: 0;
+}
+
+.flow-content h3 {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.flow-content p {
+  font-size: 12px;
+  color: var(--gray-300);
+  line-height: 1.8;
+}
+
+/* ─── Utilities ─── */
+.mt-40 { margin-top: 40px; }
+.mb-40 { margin-bottom: 40px; }
+.text-muted { color: var(--gray-500); }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+  
+  .nav {
+    gap: 16px;
+  }
+  
+  .main {
+    padding: 40px 20px;
+  }
+  
+  .endpoint-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+`;
+
+// Note: For brevity, HTML templates will be loaded dynamically from the docs directory
+// or served via static assets. This file can be extended to include all templates.

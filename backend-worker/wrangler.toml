@@ -1,6 +1,7 @@
 name = "brightbet-worker"
 main = "src/index.ts"
 compatibility_date = "2024-06-01"
+compatibility_flags = ["nodejs_compat"]
 
 routes = [
   { pattern = "brightbet.tech/*", zone_name = "brightbet.tech" },
@@ -10,6 +11,12 @@ routes = [
 [build]
 command = "cd ../frontend && npm install && npm run build"
 cwd = "."
+
+[build.upload]
+rules = [
+  { type = "Text", globs = ["**/*.html"], fallthrough = true },
+  { type = "Text", globs = ["**/*.css"], fallthrough = true }
+]
 
 [site]
 bucket = "../frontend/dist"

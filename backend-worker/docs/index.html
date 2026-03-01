@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRIGHTBET // API DOCS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+</head>
+<body>
+  <div class="ascii-bg" aria-hidden="true"></div>
+  
+  <header class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
+    <nav class="nav">
+      <a href="/docs" class="nav-link active">HOME</a>
+      <a href="/docs/api-reference.html" class="nav-link">API</a>
+      <a href="/docs/architecture.html" class="nav-link">ARCH</a>
+      <a href="/docs/x402.html" class="nav-link">X402</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <pre class="ascii-art hero-ascii">
+    ____  ____  _____  ________  __________  ____________
+   / __ )/ __ \/  _/ |/ / ___/ / / /_  __/ / / / ____/ /
+  / __  / /_/ // / |   / __  / / / / / / / / / __/  / / 
+ / /_/ / _, _// / /   / /_/ / / / / / / / / / /____/ /  
+/_____/_/ |_/___//_/|_/\____/ /_/  /_/ /_/ /_____/___/  
+      </pre>
+      <h1 class="hero-title">API DOCUMENTATION</h1>
+      <p class="hero-subtitle">Real-time predictive markets &amp; AI-powered analysis</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-header">
+          <span class="card-icon">01</span>
+          <h2 class="card-title">CLOUDFLARE WORKER</h2>
+        </div>
+        <p class="card-desc">Primary API gateway handling all public endpoints. Built on Cloudflare Workers for edge deployment.</p>
+        <code class="card-code">brightbet.tech/api/*</code>
+        <a href="/docs/api-reference.html" class="card-link">VIEW ENDPOINTS →</a>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <span class="card-icon">02</span>
+          <h2 class="card-title">QUANT ENGINE</h2>
+        </div>
+        <p class="card-desc">Python FastAPI backend for data aggregation. Scrapes Polymarket, Finnhub, Wikipedia, and computes confidence scores.</p>
+        <code class="card-code">localhost:8000/api/*</code>
+        <a href="/docs/architecture.html#quant" class="card-link">VIEW ARCHITECTURE →</a>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <span class="card-icon">03</span>
+          <h2 class="card-title">X402 PAYMENTS</h2>
+        </div>
+        <p class="card-desc">Stripe-based payment gateway implementing the x402 protocol for micropayments and paywalled content.</p>
+        <code class="card-code">/api/rickroll (paywalled)</code>
+        <a href="/docs/x402.html" class="card-link">VIEW PROTOCOL →</a>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <span class="card-icon">04</span>
+          <h2 class="card-title">AI GENERATION</h2>
+        </div>
+        <p class="card-desc">Cloudflare Workers AI for image generation. Stable Diffusion XL for memes and visualizations.</p>
+        <code class="card-code">/api/generate-meme</code>
+        <a href="/docs/api-reference.html#ai" class="card-link">VIEW AI ENDPOINTS →</a>
+      </article>
+    </section>
+
+    <section class="quick-start">
+      <h2 class="section-title">// QUICK START</h2>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">CURL</span>
+          <span class="code-file">get-ai-opinion</span>
+        </div>
+        <pre class="code-content">curl -X POST https://brightbet.tech/api/get-ai-opinion \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Will Tesla hit $500 by 2026?"}'</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">JSON</span>
+        </div>
+        <pre class="code-content">{
+  "confidence_score": 72,
+  "sentiment": "bullish",
+  "reasoning": "Based on current trajectory...",
+  "sources": { ... }
+}</pre>
+      </div>
+    </section>
+
+    <section class="endpoints-overview">
+      <h2 class="section-title">// ENDPOINT OVERVIEW</h2>
+      <table class="endpoint-table">
+        <thead>
+          <tr>
+            <th>METHOD</th>
+            <th>ENDPOINT</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method get">GET</span></td>
+            <td>/api/health</td>
+            <td>Health check</td>
+          </tr>
+          <tr>
+            <td><span class="method post">POST</span></td>
+            <td>/api/get-ai-opinion</td>
+            <td>AI market analysis</td>
+          </tr>
+          <tr>
+            <td><span class="method post">POST</span></td>
+            <td>/api/visualize</td>
+            <td>Generate visualization data</td>
+          </tr>
+          <tr>
+            <td><span class="method get">GET</span></td>
+            <td>/api/planet-categories</td>
+            <td>Get category definitions</td>
+          </tr>
+          <tr>
+            <td><span class="method post">POST</span></td>
+            <td>/api/generate-video</td>
+            <td>AI visualization (Stable Diffusion)</td>
+          </tr>
+          <tr>
+            <td><span class="method post">POST</span></td>
+            <td>/api/generate-meme</td>
+            <td>AI meme generation</td>
+          </tr>
+          <tr>
+            <td><span class="method post">POST</span></td>
+            <td>/api/candles</td>
+            <td>Chart candlestick data</td>
+          </tr>
+          <tr>
+            <td><span class="method get">GET</span></td>
+            <td>/api/rickroll</td>
+            <td>Paywalled content (x402)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <pre class="footer-ascii">
+  *    .  *       .             *
+                       *
+   *   .        *          .        .   *
+      </pre>
+      <p class="footer-text">BRIGHTBET // HACKILLINOIS 2026</p>
+      <p class="footer-links">
+        <a href="https://github.com/EricSpencer00/HackIllinois26">GITHUB</a>
+        <span class="separator">|</span>
+        <a href="https://brightbet.tech">LIVE DEMO</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

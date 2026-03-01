@@ -21,6 +21,7 @@ import {
   handleStripeWebhook,
   handlePaymentStatus,
 } from './routes/x402-payment';
+import { handleDocs } from './routes/docs';
 
 const assetManifest = JSON.parse(manifestJSON);
 
@@ -83,6 +84,11 @@ export default {
     }
     if (path.startsWith('/payment/status/')) {
       return handlePaymentStatus(request);
+    }
+
+    // --- Documentation Site ---
+    if (path.startsWith('/docs')) {
+      return handleDocs(request);
     }
 
     // --- API Routes ---

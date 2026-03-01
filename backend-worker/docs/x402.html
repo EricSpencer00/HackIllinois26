@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X402 PROTOCOL // BRIGHTBET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+</head>
+<body>
+  <div class="ascii-bg" aria-hidden="true"></div>
+  
+  <header class="header">
+    <a href="/" class="logo">BRIGHTBET</a>
+    <nav class="nav">
+      <a href="/docs" class="nav-link">HOME</a>
+      <a href="/docs/api-reference.html" class="nav-link">API</a>
+      <a href="/docs/architecture.html" class="nav-link">ARCH</a>
+      <a href="/docs/x402.html" class="nav-link active">X402</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 class="hero-title">// X402 PAYMENT PROTOCOL</h1>
+      <p class="hero-subtitle">HTTP 402 Payment Required implementation with Stripe</p>
+    </section>
+
+    <!-- What is x402 -->
+    <section class="mb-40">
+      <h2 class="section-title">// WHAT IS X402?</h2>
+      <p class="endpoint-desc">
+        The x402 protocol is an implementation of the HTTP 402 "Payment Required" status code. 
+        Originally reserved in HTTP/1.1 for future use, it enables machine-readable payment 
+        requirements for API endpoints. Our implementation uses Stripe for payment processing.
+      </p>
+      
+      <div class="arch-diagram">
+        <pre>
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         X402 PAYMENT FLOW                                │
+│                                                                          │
+│   Client                    Server                      Stripe           │
+│     │                         │                           │              │
+│     │──── GET /api/resource ──▶│                          │              │
+│     │                         │                           │              │
+│     │◀─── 402 Payment Required │                          │              │
+│     │     + checkoutUrl       │                           │              │
+│     │     + sessionId         │                           │              │
+│     │                         │                           │              │
+│     │────────────── Redirect to Stripe checkout ─────────▶│              │
+│     │                         │                           │              │
+│     │◀────────────── Payment complete, redirect ──────────│              │
+│     │                         │                           │              │
+│     │──── GET /payment/success?session_id=xxx ───────────▶│              │
+│     │                         │────── Verify session ────▶│              │
+│     │                         │◀───── Session valid ──────│              │
+│     │◀─── 302 Redirect to resource ──│                    │              │
+│     │                         │                           │              │
+│     │──── GET /api/resource?paid_session=xxx ────────────▶│              │
+│     │                         │                           │              │
+│     │◀─── 200 OK + content ───│                           │              │
+│     │                         │                           │              │
+└──────────────────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <!-- Payment Flow Steps -->
+    <section class="mb-40">
+      <h2 class="section-title">// PAYMENT FLOW</h2>
+      
+      <div class="flow-step">
+        <span class="flow-number">01</span>
+        <div class="flow-content">
+          <h3>REQUEST PAYWALLED RESOURCE</h3>
+          <p>
+            Client makes a request to a protected endpoint. The server checks for a valid 
+            payment session via the <code>X-Payment-Session</code> header or <code>paid_session</code> 
+            query parameter.
+          </p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span class="flow-number">02</span>
+        <div class="flow-content">
+          <h3>402 PAYMENT REQUIRED</h3>
+          <p>
+            Without valid payment, the server returns a 402 response with payment options.
+            The response includes a Stripe checkout URL, session ID, and expiration time.
+          </p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span class="flow-number">03</span>
+        <div class="flow-content">
+          <h3>STRIPE CHECKOUT</h3>
+          <p>
+            Client redirects to Stripe's hosted checkout page. User completes payment 
+            using card, Apple Pay, Google Pay, or other supported methods.
+          </p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span class="flow-number">04</span>
+        <div class="flow-content">
+          <h3>PAYMENT CONFIRMATION</h3>
+          <p>
+            Stripe redirects to <code>/payment/success</code> with the session ID. 
+            Server marks the session as paid (webhook also confirms asynchronously).
+          </p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span class="flow-number">05</span>
+        <div class="flow-content">
+          <h3>ACCESS GRANTED</h3>
+          <p>
+            Server redirects to the original resource with the paid session token.
+            Client receives the protected content (AI-generated meme, premium data, etc.).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Implementation -->
+    <section class="mb-40">
+      <h2 class="section-title">// IMPLEMENTATION</h2>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">REQUEST</span>
+          <span class="code-file">Initial request (no payment)</span>
+        </div>
+        <pre class="code-content">curl https://brightbet.tech/api/rickroll?question=Will%20BTC%20hit%20200k</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">402 Payment Required</span>
+        </div>
+        <pre class="code-content">{
+  "error": "Payment required",
+  "resource": {
+    "url": "https://brightbet.tech/api/rickroll?question=Will%20BTC%20hit%20200k",
+    "description": "Free AI meme generator: Will BTC hit 200k",
+    "mimeType": "text/html"
+  },
+  "paymentOptions": {
+    "stripe": {
+      "checkoutUrl": "https://checkout.stripe.com/c/pay/cs_test_...",
+      "sessionId": "a091a45b-1865-4b92-9a46-bc07ada424f9",
+      "expiresAt": "2026-03-01T02:00:00.000Z"
+    }
+  },
+  "message": "Pay $0.50 via Stripe to generate your free AI meme!"
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">REQUEST</span>
+          <span class="code-file">After payment (with session)</span>
+        </div>
+        <pre class="code-content">curl "https://brightbet.tech/api/rickroll?paid_session=a091a45b-1865-4b92-9a46-bc07ada424f9"
+
+# Or with header:
+curl -H "X-Payment-Session: a091a45b-1865-4b92-9a46-bc07ada424f9" \
+  https://brightbet.tech/api/rickroll</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">200 OK (HTML page with AI meme)</span>
+        </div>
+        <pre class="code-content">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;title&gt;AI MEME // BRIGHTBET&lt;/title&gt;
+  ...
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;// AI MEME GENERATED&lt;/h1&gt;
+  &lt;img src="data:image/png;base64,..." /&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+    </section>
+
+    <!-- Session Management -->
+    <section class="mb-40">
+      <h2 class="section-title">// SESSION MANAGEMENT</h2>
+      
+      <table class="endpoint-table">
+        <thead>
+          <tr>
+            <th>ENDPOINT</th>
+            <th>METHOD</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>/payment/success</td>
+            <td><span class="method get">GET</span></td>
+            <td>Stripe redirect after successful payment. Marks session paid.</td>
+          </tr>
+          <tr>
+            <td>/payment/cancel</td>
+            <td><span class="method get">GET</span></td>
+            <td>Stripe redirect on payment cancellation.</td>
+          </tr>
+          <tr>
+            <td>/payment/status/:id</td>
+            <td><span class="method get">GET</span></td>
+            <td>Poll session status (pending/paid/settled).</td>
+          </tr>
+          <tr>
+            <td>/stripe/webhooks</td>
+            <td><span class="method post">POST</span></td>
+            <td>Stripe webhook for async payment confirmation.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="params-title mt-40">SESSION STATES</h3>
+      <div class="arch-diagram">
+        <pre>
+┌──────────┐     Payment      ┌──────────┐     Resource      ┌──────────┐
+│ PENDING  │───completed────▶│   PAID   │────accessed─────▶│ SETTLED  │
+└──────────┘                  └──────────┘                   └──────────┘
+     │                              │                              │
+     │                              │                              │
+     ▼                              ▼                              ▼
+  Created when              Valid for accessing             Final state,
+  checkout URL is           protected resource              resource was
+  requested                                                 delivered
+        </pre>
+      </div>
+    </section>
+
+    <!-- Pricing Configuration -->
+    <section class="mb-40">
+      <h2 class="section-title">// PRICING CONFIGURATION</h2>
+      
+      <p class="endpoint-desc">
+        Protected routes are configured with pricing and payment options in the worker:
+      </p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">CONFIG</span>
+          <span class="code-file">backend-worker/src/routes/x402-payment.ts</span>
+        </div>
+        <pre class="code-content">// Route configuration (conceptual)
+const paymentConfig = {
+  "GET /api/rickroll": {
+    price: "$0.50",
+    description: "AI Meme Generator",
+    mimeType: "text/html",
+    enableStripe: true
+  },
+  "GET /api/premium-data": {
+    price: "$0.10",
+    description: "Premium market analysis",
+    mimeType: "application/json",
+    enableStripe: true
+  }
+};</pre>
+      </div>
+    </section>
+
+    <!-- Environment Variables -->
+    <section class="mb-40">
+      <h2 class="section-title">// ENVIRONMENT VARIABLES</h2>
+      
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>VARIABLE</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">STRIPE_SECRET_KEY</span></td>
+            <td>Stripe secret key for server-side API calls</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">STRIPE_WEBHOOK_SECRET</span></td>
+            <td>Webhook signing secret for verifying Stripe events</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">STRIPE_PUBLISHABLE_KEY</span></td>
+            <td>Public key for client-side Stripe.js (if needed)</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">APP_BASE_URL</span></td>
+            <td>Base URL for redirect URLs (e.g., https://brightbet.tech)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Testing -->
+    <section class="mb-40">
+      <h2 class="section-title">// TESTING</h2>
+      
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">TEST CARDS</span>
+          <span class="code-file">Stripe Test Mode</span>
+        </div>
+        <pre class="code-content"># Successful payment
+Card: 4242 4242 4242 4242
+Exp:  Any future date
+CVC:  Any 3 digits
+
+# Declined payment
+Card: 4000 0000 0000 0002
+
+# Requires authentication
+Card: 4000 0025 0000 3155</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <pre class="footer-ascii">
+  *    .  *       .             *
+                       *
+   *   .        *          .        .   *
+      </pre>
+      <p class="footer-text">BRIGHTBET // HACKILLINOIS 2026</p>
+      <p class="footer-links">
+        <a href="https://github.com/EricSpencer00/HackIllinois26">GITHUB</a>
+        <span class="separator">|</span>
+        <a href="https://brightbet.tech">LIVE DEMO</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

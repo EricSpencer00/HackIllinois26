@@ -257,8 +257,8 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
 
       const cursorX = (mouseRef.current.x * 0.5 + 0.5) * 100;
       const cursorY = (mouseRef.current.y * 0.5 + 0.5) * 100;
-      const ripple = 120 + Math.sin(elapsed * 3.2) * 30;
-      effect.domElement.style.background = `radial-gradient(circle ${ripple}px at ${cursorX}% ${cursorY}%, rgba(255,255,255,0.15), rgba(0,0,0,0) 80%), #000000`;
+      const ripple = 180 + Math.sin(elapsed * 3.2) * 50;
+      effect.domElement.style.background = `radial-gradient(circle ${ripple}px at ${cursorX}% ${cursorY}%, rgba(255,255,255,0.2), rgba(0,0,0,0) 90%), #000000`;
 
       /* ── Particles always drift ─── */
       for (const pt of particles) {
