@@ -6,6 +6,14 @@
 
 [brightbet.tech/docs](https://brightbet.tech/docs)
 
+## Quick Test
+
+```
+curl brightbet.tech/api/health
+```
+`
+{"status":"healthy","service":"BrightBet API","timestamp":"2026-03-01T08:41:32.357Z"}`                                  
+
 ## What It Does
 
 Ask any trade or prediction question. BrightBet scrapes context from multiple live data sources, feeds it to an AI, and returns a confidence score with reasoning.
