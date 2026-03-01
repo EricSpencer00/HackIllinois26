@@ -87,8 +87,8 @@ export default function DataOverlay({ result, progress, selectedCategory, onBack
           </div>
         )}
 
-        {/* Buy Trade Now — Stripe x402 checkout */}
-        <BuyTradeButton />
+        {/* Buy Trade Now — Stripe x402 checkout for Free AI Meme */}
+        <BuyTradeButton question={question} />
 
         {/* Back button */}
         {onBack && (
@@ -246,7 +246,7 @@ function MacroPanel({ sources }: { sources: AiOpinionResponse['sources'] }) {
   );
 }
 
-function BuyTradeButton() {
+function BuyTradeButton({ question = 'This is hilarious' }: { question?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -254,7 +254,8 @@ function BuyTradeButton() {
     setLoading(true);
     setError(null);
     try {
-      const resp = await fetch('/api/rickroll');
+      const questionParam = encodeURIComponent(question);
+      const resp = await fetch(`/api/rickroll?question=${questionParam}`);
       const data = await resp.json();
       const checkoutUrl = data?.paymentOptions?.stripe?.checkoutUrl;
       if (checkoutUrl) {
@@ -276,7 +277,7 @@ function BuyTradeButton() {
         onClick={handleBuy}
         disabled={loading}
       >
-        {loading ? 'Opening checkout...' : 'Buy Trade Now →'}
+        {loading ? 'Opening checkout...' : 'Generate AI Meme for $0.50 →'}
       </button>
       {error && <span style={{ display: 'block', color: '#666', fontSize: 10, marginTop: 6 }}>{error}</span>}
     </div>

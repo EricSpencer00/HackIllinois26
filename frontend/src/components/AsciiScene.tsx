@@ -22,6 +22,11 @@ interface Props {
   phase: Phase;
 }
 
+type DebrisUserData = {
+  velocity: THREE.Vector3;
+  rotSpeed: number;
+};
+
 /* ── Easing helpers ─────────────────────────────────── */
 
 function easeOutQuart(t: number): number {
@@ -150,6 +155,31 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
     /* ── Subcategory shapes (for explosion) ─── */
     const subGroup = new THREE.Group();
     scene.add(subGroup);
+
+    const explosionCenter = new THREE.Vector3();
+    const debrisDirection = new THREE.Vector3();
+    const explosionDebris: THREE.Mesh[] = [];
+    const DEBRIS_COUNT = 70;
+    let debrisLaunched = false;
+
+    for (let i = 0; i < DEBRIS_COUNT; i++) {
+      const size = Math.random() * 0.18 + 0.08;
+      const geo = new THREE.SphereGeometry(size, 8, 8);
+      const mat = new THREE.MeshPhongMaterial({
+        color: new THREE.Color(0xffca7c).lerp(new THREE.Color(0xff5b8a), Math.random()),
+        flatShading: true,
+        transparent: true,
+        opacity: 0,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.visible = false;
+      mesh.userData = {
+        velocity: new THREE.Vector3(),
+        rotSpeed: 0,
+      } as DebrisUserData;
+      scene.add(mesh);
+      explosionDebris.push(mesh);
+    }
 
     const subMeshes: THREE.Mesh[] = [];
     SUBCATEGORIES.forEach((sub) => {
@@ -280,6 +310,14 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
 
         /* ── Phase 1: Roulette spin (progress 0 → 0.35) ─── */
         if (p < 0.35) {
+          if (debrisLaunched) {
+            debrisLaunched = false;
+            explosionDebris.forEach((deb) => {
+              deb.visible = false;
+            });
+          }
+          subGroup.visible = false;
+          subGroup.position.set(0, 0, 0);
           const spinP = Math.min(p / 0.35, 1);
           ringGroup.rotation.y = baseRotation + easeOutQuart(spinP) * totalSpin;
           ringGroup.visible = true;
@@ -299,6 +337,14 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
 
         /* ── Phase 2: Selection (progress 0.35 → 0.6) ─── */
         else if (p < 0.6) {
+          if (debrisLaunched) {
+            debrisLaunched = false;
+            explosionDebris.forEach((deb) => {
+              deb.visible = false;
+            });
+          }
+          subGroup.visible = false;
+          subGroup.position.set(0, 0, 0);
           const selP = (p - 0.35) / 0.25;
           ringGroup.visible = true;
 
@@ -327,6 +373,14 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
         else {
           const exP = (p - 0.6) / 0.4;
 
+          const selectedMesh = planetMeshes[sel];
+          if (selectedMesh) {
+            selectedMesh.getWorldPosition(explosionCenter);
+            subGroup.position.copy(explosionCenter);
+          } else {
+            subGroup.position.set(0, 0, 0);
+          }
+
           // Dissolve the ring
           ringGroup.visible = exP < 0.5;
           for (let i = 0; i < planetMeshes.length; i++) {
@@ -342,6 +396,21 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
           // Reveal sub-shapes in a radial burst
           subGroup.visible = true;
           const SUB_RADIUS = 7;
+          if (!debrisLaunched) {
+            debrisLaunched = true;
+            explosionDebris.forEach((deb) => {
+              const data = deb.userData as DebrisUserData;
+              deb.visible = true;
+              deb.position.copy(explosionCenter);
+              debrisDirection.set(
+                (Math.random() - 0.5) * 2,
+                Math.random() * 0.8 + 0.2,
+                (Math.random() - 0.5) * 2,
+              );
+              data.velocity.copy(debrisDirection.normalize()).multiplyScalar(0.25 + Math.random() * 0.45);
+              data.rotSpeed = 0.3 + Math.random() * 0.6;
+            });
+          }
 
           for (let i = 0; i < subMeshes.length; i++) {
             const sm = subMeshes[i];
@@ -364,6 +433,16 @@ export default function AsciiScene({ progress, selectedCategory, phase }: Props)
 
             sm.rotation.y = elapsed * 0.4 + i * 0.8;
             sm.rotation.x = elapsed * 0.2 + i * 0.5;
+          }
+
+          const debrisFade = Math.max(0.15, 1 - exP * 1.6);
+          for (const deb of explosionDebris) {
+            const data = deb.userData as DebrisUserData;
+            deb.position.add(data.velocity);
+            data.velocity.multiplyScalar(0.97);
+            deb.rotation.x += data.rotSpeed;
+            deb.rotation.y += data.rotSpeed * 0.6;
+            (deb.material as THREE.MeshPhongMaterial).opacity = debrisFade;
           }
         }
       }

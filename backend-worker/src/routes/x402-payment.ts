@@ -11,23 +11,25 @@
 
 import type { Env } from '../index';
 import { createCheckoutSession, verifyWebhookSignature } from '../services/stripe';
+import { handleGenerateMeme } from './generate-meme';
 
 // ── In-memory session store (lives for the Worker isolate lifetime) ──────────
 // For production, use KV or Durable Objects. For a hackathon demo this is fine
 // since Stripe redirects back within the same datacenter isolate most of the time.
 const sessions = new Map<string, {
   id: string;
+  question?: string;
   status: 'pending' | 'paid' | 'settled';
   createdAt: number;
 }>();
 
-function createSession(): string {
+function createSession(question?: string): string {
   const id = crypto.randomUUID();
-  sessions.set(id, { id, status: 'pending', createdAt: Date.now() });
+  sessions.set(id, { id, question, status: 'pending', createdAt: Date.now() });
   return id;
 }
 
-// ── Rickroll HTML ────────────────────────────────────────────────────────────
+// ── Rickroll HTML (kept for reference, but not used) ────────────────────────────
 const RICKROLL_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,11 +55,183 @@ const RICKROLL_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+/**
+ * Generate HTML page to display the AI-generated meme
+ */
+function generateMemeHtml(question: string, imageData: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AI-Generated Meme</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      font-family: system-ui, sans-serif; 
+      padding: 20px;
+    }
+    .container { 
+      text-align: center; 
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 800px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { 
+      color: #333; 
+      margin-bottom: 0.5rem; 
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .question {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+    .meme-container {
+      margin: 2rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    img { 
+      max-width: 100%;
+      height: auto;
+      display: block;
+      background: #f0f0f0;
+    }
+    .footer {
+      margin-top: 2rem;
+      color: #999;
+      font-size: 0.9rem;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ Your AI Meme Generated! ✨</h1>
+    <div class="question">About: "${escapeHtml(question)}"</div>
+    <div class="meme-container">
+      <img src="${imageData}" alt="Generated meme" />
+    </div>
+    <p class="footer">
+      Thanks for supporting free AI generation! 🎨
+    </p>
+    <div class="badge">Powered by Cloudflare AI</div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Generate fallback HTML if meme generation fails
+ */
+function generateFallbackHtml(question: string, error: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meme Generation - Processing</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      font-family: system-ui, sans-serif; 
+      padding: 20px;
+    }
+    .container { 
+      text-align: center; 
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { 
+      color: #333; 
+      margin-bottom: 1rem; 
+      font-size: 1.5rem;
+    }
+    .message {
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .error {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ Payment Received! ✨</h1>
+    <div class="message">
+      <p>Thank you for your payment!</p>
+      <p style="margin-top: 1rem;">Your free AI meme about <strong>"${escapeHtml(question)}"</strong> is being generated...</p>
+    </div>
+    ${error ? `<div class="error">Note: ${escapeHtml(error)}</div>` : ''}
+    <p style="color: #999; font-size: 0.9rem; margin-top: 2rem;">
+      Powered by Cloudflare AI ✨
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
 // ── Route handlers ───────────────────────────────────────────────────────────
 
-/** GET /api/rickroll — returns 402 with Stripe checkout, or rickroll if paid */
+/** GET /api/rickroll — returns 402 with Stripe checkout, or generates free AI meme if paid */
 export async function handleRickroll(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
+
+  // Get question from query parameter
+  const question = url.searchParams.get('question') || 'This is really funny';
 
   // Check for paid session via header or query param
   const sessionId =
@@ -68,15 +242,38 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
     const session = sessions.get(sessionId);
     if (session && (session.status === 'paid' || session.status === 'settled')) {
       session.status = 'settled';
-      return new Response(RICKROLL_HTML, {
-        status: 200,
-        headers: { 'Content-Type': 'text/html' },
+      
+      // Generate the free AI meme for the user's question
+      const questionToUse = session.question || question;
+      const memeRequest = new Request('https://placeholder.local/api/generate-meme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: questionToUse }),
       });
+      
+      try {
+        const memeResponse = await handleGenerateMeme(memeRequest, env);
+        const memeData = (await memeResponse.json()) as any;
+        
+        // Return HTML page displaying the generated meme
+        const memeHtml = generateMemeHtml(questionToUse, memeData.imageData || '');
+        return new Response(memeHtml, {
+          status: 200,
+          headers: { 'Content-Type': 'text/html' },
+        });
+      } catch (err: any) {
+        // Fallback if meme generation fails
+        const fallbackHtml = generateFallbackHtml(questionToUse, err.message);
+        return new Response(fallbackHtml, {
+          status: 200,
+          headers: { 'Content-Type': 'text/html' },
+        });
+      }
     }
   }
 
-  // No valid payment — create session and return 402 with Stripe checkout
-  const newSessionId = createSession();
+  // Store question in session for later use
+  const newSessionId = createSession(question);
   const baseUrl = env.APP_BASE_URL || `${url.protocol}//${url.host}`;
 
   try {
@@ -84,8 +281,8 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
       env,
       sessionId: newSessionId,
       price: '$0.50',
-      description: 'Exclusive premium content — pay to reveal',
-      successUrl: `${baseUrl}/payment/success?session_id=${newSessionId}`,
+      description: `Free AI meme generator: ${question}`,
+      successUrl: `${baseUrl}/payment/success?session_id=${newSessionId}&question=${encodeURIComponent(question)}`,
       cancelUrl: `${baseUrl}/payment/cancel?session_id=${newSessionId}`,
     });
 
@@ -93,8 +290,8 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
       JSON.stringify({
         error: 'Payment required',
         resource: {
-          url: `${baseUrl}/api/rickroll`,
-          description: 'Exclusive premium content — pay to reveal',
+          url: `${baseUrl}/api/rickroll?question=${encodeURIComponent(question)}`,
+          description: `Free AI meme generator: ${question}`,
           mimeType: 'text/html',
         },
         paymentOptions: {
@@ -104,7 +301,7 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
             expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
           },
         },
-        message: 'Pay via Stripe checkout to access this resource.',
+        message: 'Pay $0.50 via Stripe to generate your free AI meme!',
       }),
       {
         status: 402,
@@ -123,6 +320,7 @@ export async function handleRickroll(request: Request, env: Env): Promise<Respon
 export async function handlePaymentSuccess(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const sessionId = url.searchParams.get('session_id');
+  const question = url.searchParams.get('question');
 
   if (!sessionId) {
     return new Response(JSON.stringify({ error: 'Missing session_id' }), {
@@ -135,14 +333,16 @@ export async function handlePaymentSuccess(request: Request, env: Env): Promise<
   const session = sessions.get(sessionId);
   if (session) {
     session.status = 'paid';
+    if (question) session.question = decodeURIComponent(question);
   } else {
     // Session may have been lost (different isolate) — trust Stripe redirect and create it
-    sessions.set(sessionId, { id: sessionId, status: 'paid', createdAt: Date.now() });
+    sessions.set(sessionId, { id: sessionId, question: question ? decodeURIComponent(question) : undefined, status: 'paid', createdAt: Date.now() });
   }
 
-  // Redirect to the rickroll reveal
+  // Redirect to the meme reveal with the stored question
   const baseUrl = env.APP_BASE_URL || `${url.protocol}//${url.host}`;
-  return Response.redirect(`${baseUrl}/api/rickroll?paid_session=${sessionId}`, 302);
+  const questionParam = question ? `&question=${question}` : '';
+  return Response.redirect(`${baseUrl}/api/rickroll?paid_session=${sessionId}${questionParam}`, 302);
 }
 
 /** GET /payment/cancel — Stripe redirects here on cancel */

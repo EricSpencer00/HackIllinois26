@@ -168,3 +168,25 @@ export async function generateVideo(
     return null;
   }
 }
+
+export interface MemeGenResponse {
+  type: 'meme' | 'error';
+  imageData?: string;   // base64 data URL from CF Workers AI
+  error?: string;
+  question: string;
+  prompt?: string;
+}
+
+export async function generateMeme(question: string): Promise<MemeGenResponse | null> {
+  try {
+    const resp = await fetch(`${API_BASE}/generate-meme`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    });
+    if (!resp.ok) return null;
+    return resp.json();
+  } catch {
+    return null;
+  }
+}

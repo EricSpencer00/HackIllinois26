@@ -12,6 +12,7 @@ import { handleGetAiOpinion } from './routes/get-ai-opinion';
 import { handleVisualize } from './routes/visualize';
 import { handlePlanetCategories } from './routes/planet-categories';
 import { handleGenerateVideo } from './routes/generate-video';
+import { handleGenerateMeme } from './routes/generate-meme';
 import { handleCandles } from './routes/candles';
 import {
   handleRickroll,
@@ -101,6 +102,8 @@ export default {
           response = await handlePlanetCategories();
         } else if (path === '/api/generate-video') {
           response = await handleGenerateVideo(request, env);
+        } else if (path === '/api/generate-meme') {
+          response = await handleGenerateMeme(request, env);
         } else if (path === '/api/candles') {
           response = await handleCandles(request, env);
         } else {
