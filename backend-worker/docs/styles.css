@@ -127,6 +127,26 @@ a {
   color: var(--gray-500);
   margin-bottom: 32px;
   overflow: hidden;
+  min-height: 220px;
+  white-space: pre;
+  position: relative;
+}
+
+.hero-ascii.typing::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  width: 2px;
+  height: 1.2em;
+  background: var(--gray-500);
+  animation: blink 1s steps(2) infinite;
+  transform: translateX(-50%);
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0.9; }
+  25%, 75% { opacity: 0.2; }
 }
 
 @media (max-width: 768px) {

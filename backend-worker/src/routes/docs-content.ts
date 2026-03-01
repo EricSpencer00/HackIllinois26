@@ -25,12 +25,17 @@ export const indexHtml = `<!DOCTYPE html>
 
   <main class="main">
     <section class="hero">
-      <pre class="ascii-art hero-ascii">
-    ____  ____  _____  ________  __________  ____________
-   / __ )/ __ \\/  _/ |/ / ___/ / / /_  __/ / / / ____/ /
-  / __  / /_/ // / |   / __  / / / / / / / / / __/  / / 
- / /_/ / _, _// / /   / /_/ / / / / / / / / / /____/ /  
-/_____/_/ |_/___//_/|_/\\____/ /_/  /_/ /_/ /_____/___/  
+      <pre class="ascii-art hero-ascii" aria-hidden="true">
+░████████            ░██           ░██           ░██    ░████████                 ░██           ░██                          ░██           
+░██    ░██                         ░██           ░██    ░██    ░██                ░██           ░██                          ░██           
+░██    ░██  ░██░████ ░██ ░████████ ░████████  ░████████ ░██    ░██   ░███████  ░████████     ░████████  ░███████   ░███████  ░████████     
+░████████   ░███     ░██░██    ░██ ░██    ░██    ░██    ░████████   ░██    ░██    ░██           ░██    ░██    ░██ ░██    ░██ ░██    ░██    
+░██     ░██ ░██      ░██░██    ░██ ░██    ░██    ░██    ░██     ░██ ░█████████    ░██           ░██    ░█████████ ░██        ░██    ░██    
+░██     ░██ ░██      ░██░██   ░███ ░██    ░██    ░██    ░██     ░██ ░██           ░██           ░██    ░██        ░██    ░██ ░██    ░██    
+░█████████  ░██      ░██ ░█████░██ ░██    ░██     ░████ ░█████████   ░███████      ░████ ░██     ░████  ░███████   ░███████  ░██    ░██    
+                               ░██                                                                                                         
+                         ░███████                                                                                                          
+                                                                                                                                           
       </pre>
       <h1 class="hero-title">API DOCUMENTATION</h1>
       <p class="hero-subtitle">Real-time predictive markets &amp; AI-powered analysis</p>
@@ -72,8 +77,8 @@ export const indexHtml = `<!DOCTYPE html>
           <span class="card-icon">04</span>
           <h2 class="card-title">AI GENERATION</h2>
         </div>
-        <p class="card-desc">Cloudflare Workers AI for image generation. Stable Diffusion XL for memes and visualizations.</p>
-        <code class="card-code">/api/generate-meme</code>
+        <p class="card-desc">Cloudflare Workers AI for cinematic image builds and meme synthesis using Stable Diffusion XL.</p>
+        <code class="card-code">/api/generate-image</code>
         <a href="/docs/api-reference.html#ai" class="card-link">VIEW AI ENDPOINTS →</a>
       </article>
     </section>
@@ -101,6 +106,28 @@ export const indexHtml = `<!DOCTYPE html>
   "sources": { ... }
 }</pre>
       </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">CURL</span>
+          <span class="code-file">generate-image</span>
+        </div>
+        <pre class="code-content">curl -X POST https://brightbet.tech/api/generate-image \\
+  -H "Content-Type: application/json" \\
+  -d '{"question": "Visualize a neon planet surrounded by auroras", "sentiment": "neutral", "confidence": 64}'</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">RESPONSE</span>
+          <span class="code-file">JSON</span>
+        </div>
+        <pre class="code-content">{
+  "type": "image",
+  "prompt": "A glowing planet floating in deep space...",
+  "sentiment": "neutral",
+  "confidence": 64,
+  "imageData": "data:image/png;base64,...."
+}</pre>
+      </div>
     </section>
 
     <section class="endpoints-overview">
@@ -117,42 +144,37 @@ export const indexHtml = `<!DOCTYPE html>
           <tr>
             <td><span class="method get">GET</span></td>
             <td>/api/health</td>
-            <td>Health check</td>
+            <td>Health check with status metadata.</td>
           </tr>
           <tr>
             <td><span class="method post">POST</span></td>
             <td>/api/get-ai-opinion</td>
-            <td>AI market analysis</td>
+            <td>Multi-source AI market reasoning.</td>
           </tr>
           <tr>
             <td><span class="method post">POST</span></td>
             <td>/api/visualize</td>
-            <td>Generate visualization data</td>
+            <td>Build planet visualization payload (GET with <code>?question=</code> supported).</td>
           </tr>
           <tr>
             <td><span class="method get">GET</span></td>
             <td>/api/planet-categories</td>
-            <td>Get category definitions</td>
+            <td>Retrieve UI category metadata.</td>
           </tr>
           <tr>
             <td><span class="method post">POST</span></td>
-            <td>/api/generate-video</td>
-            <td>AI visualization (Stable Diffusion)</td>
+            <td>/api/generate-image</td>
+            <td>AI visualization image (alias: <code>/api/generate-video</code>).</td>
           </tr>
           <tr>
             <td><span class="method post">POST</span></td>
             <td>/api/generate-meme</td>
-            <td>AI meme generation</td>
+            <td>Premium AI meme generator after x402 payment.</td>
           </tr>
           <tr>
             <td><span class="method post">POST</span></td>
             <td>/api/candles</td>
-            <td>Chart candlestick data</td>
-          </tr>
-          <tr>
-            <td><span class="method get">GET</span></td>
-            <td>/api/rickroll</td>
-            <td>Paywalled content (x402)</td>
+            <td>OHLC + prediction series for charting.</td>
           </tr>
         </tbody>
       </table>
@@ -174,6 +196,38 @@ export const indexHtml = `<!DOCTYPE html>
       </p>
     </div>
   </footer>
+  <script>
+    (function () {
+      const heroAscii = document.querySelector('.hero-ascii');
+      if (!heroAscii) return;
+      const rawText = heroAscii.textContent || '';
+      const normalized = rawText.replace(/\\r/g, '').replace(/^\\n+/, '');
+      if (!normalized) return;
+      const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      heroAscii.classList.add('typing');
+      if (prefersReduce) {
+        heroAscii.textContent = normalized;
+        heroAscii.classList.add('typed');
+        heroAscii.classList.remove('typing');
+        return;
+      }
+
+      heroAscii.textContent = '';
+      let index = 0;
+      function typeNext() {
+        heroAscii.textContent = normalized.slice(0, index);
+        if (index < normalized.length) {
+          index += 1;
+          const delay = 8 + Math.random() * 28;
+          setTimeout(typeNext, delay);
+        } else {
+          heroAscii.classList.add('typed');
+          heroAscii.classList.remove('typing');
+        }
+      }
+      typeNext();
+    })();
+  </script>
 </body>
 </html>
 `;
@@ -391,15 +445,17 @@ export const apiReferenceHtml = `<!DOCTYPE html>
       <h2 class="section-title">// AI GENERATION ENDPOINTS</h2>
     </section>
 
-    <!-- Generate Video -->
-    <section class="endpoint-section" id="generate-video">
+    <!-- Generate Image -->
+    <section class="endpoint-section" id="generate-image">
       <div class="endpoint-header">
         <span class="endpoint-method method post">POST</span>
-        <code class="endpoint-path">/api/generate-video</code>
+        <code class="endpoint-path">/api/generate-image</code>
       </div>
       <p class="endpoint-desc">
-        Generates an AI visualization image using Cloudflare Workers AI (Stable Diffusion XL). 
+        Generates an AI visualization image using Cloudflare Workers AI (Stable Diffusion XL).
         Creates cinematic planet/nebula imagery based on sentiment and confidence.
+        <br />
+        <small>Legacy alias: <code>/api/generate-video</code></small>
       </p>
       
       <h4 class="params-title">REQUEST BODY</h4>
@@ -651,24 +707,24 @@ export const architectureHtml = `<!DOCTYPE html>
         <pre>
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              CLIENT LAYER                                   │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  React + Three.js Frontend                                          │   │
-│  │  ├── ASCII Effect Renderer (WebGL)                                  │   │
-│  │  ├── Real-time 3D Planet Visualizations                             │   │
-│  │  └── Brutalist UI Components                                        │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  React + Three.js Frontend                                          │    │
+│  │  ├── ASCII Effect Renderer (WebGL)                                  │    │
+│  │  ├── Real-time 3D Planet Visualizations                             │    │
+│  │  └── Brutalist UI Components                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           EDGE GATEWAY LAYER                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  Cloudflare Worker (brightbet.tech)                                 │   │
-│  │  ├── API Router & CORS                                              │   │
-│  │  ├── Static Asset Serving (KV)                                      │   │
-│  │  ├── Workers AI Integration (Stable Diffusion)                      │   │
-│  │  └── x402 Payment Middleware                                        │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Cloudflare Worker (brightbet.tech)                                 │    │
+│  │  ├── API Router & CORS                                              │    │
+│  │  ├── Static Asset Serving (KV)                                      │    │
+│  │  ├── Workers AI Integration (Stable Diffusion)                      │    │
+│  │  └── x402 Payment Middleware                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┴───────────────┐
@@ -686,13 +742,13 @@ export const architectureHtml = `<!DOCTYPE html>
                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          DATA SOURCE LAYER                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
-│  │Polymarket│ │ Finnhub  │ │Wikipedia │ │CoinGecko │ │  Reddit  │          │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                    │
-│  │  FRED    │ │ Google   │ │Fear/Greed│                                    │
-│  │(Macro)   │ │ Trends   │ │  Index   │                                    │
-│  └──────────┘ └──────────┘ └──────────┘                                    │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │Polymarket│ │ Finnhub  │ │Wikipedia │ │CoinGecko │ │  Reddit  │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                     │
+│  │  FRED    │ │ Google   │ │Fear/Greed│                                     │
+│  │(Macro)   │ │ Trends   │ │  Index   │                                     │
+│  └──────────┘ └──────────┘ └──────────┘                                     │
 └─────────────────────────────────────────────────────────────────────────────┘
         </pre>
       </div>
@@ -748,7 +804,7 @@ export const architectureHtml = `<!DOCTYPE html>
 │   │   ├── get-ai-opinion.ts    # AI inference orchestration
 │   │   ├── visualize.ts   # Visualization data
 │   │   ├── planet-categories.ts # Category definitions
-│   │   ├── generate-video.ts    # AI image generation
+│   │   ├── generate-image.ts    # AI image generation
 │   │   ├── generate-meme.ts     # AI meme generation
 │   │   ├── candles.ts     # Chart data endpoint
 │   │   └── x402-payment.ts      # Payment flow handlers
@@ -801,9 +857,9 @@ export const architectureHtml = `<!DOCTYPE html>
         <pre>
 ┌─────────────┐    ┌─────────────────────────────────────────────┐
 │  /api/      │    │              CONCURRENT FETCH               │
-│  analyze    │───▶│  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
-│             │    │  │Polymarket│ │ Finnhub │ │Wikipedia│       │
-└─────────────┘    │  └────┬────┘ └────┬────┘ └────┬────┘       │
+│  analyze    │───▶│  ┌─────────┐ ┌─────────┐ ┌─────────┐        │
+│             │    │  │Polymarket | Finnhub │ │Wikipedia│        │
+└─────────────┘    │  └────┬────┘ └────┬────┘ └────┬────┘        │
                    │       │           │           │             │
                    │       └───────────┼───────────┘             │
                    │                   ▼                         │
@@ -1429,6 +1485,26 @@ a {
   color: var(--gray-500);
   margin-bottom: 32px;
   overflow: hidden;
+  min-height: 220px;
+  white-space: pre;
+  position: relative;
+}
+
+.hero-ascii.typing::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  width: 2px;
+  height: 1.2em;
+  background: var(--gray-500);
+  animation: blink 1s steps(2) infinite;
+  transform: translateX(-50%);
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0.9; }
+  25%, 75% { opacity: 0.2; }
 }
 
 @media (max-width: 768px) {
