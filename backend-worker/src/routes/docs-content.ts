@@ -196,38 +196,40 @@ export const indexHtml = `<!DOCTYPE html>
       </p>
     </div>
   </footer>
-  <script>
-    (function () {
-      const heroAscii = document.querySelector('.hero-ascii');
-      if (!heroAscii) return;
-      const rawText = heroAscii.textContent || '';
-      const normalized = rawText.replace(/\\r/g, '').replace(/^\\n+/, '');
-      if (!normalized) return;
-      const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      heroAscii.classList.add('typing');
-      if (prefersReduce) {
-        heroAscii.textContent = normalized;
-        heroAscii.classList.add('typed');
-        heroAscii.classList.remove('typing');
-        return;
-      }
+      <script>
+        (function () {
+          const heroAscii = document.querySelector('.hero-ascii');
+          if (!heroAscii) return;
+          const rawText = heroAscii.textContent || '';
+          const normalized = rawText.replace(/\\r/g, '').replace(/^\\n+/, '');
+          if (!normalized) return;
+          const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          heroAscii.classList.add('typing');
+          if (prefersReduce) {
+            heroAscii.textContent = normalized;
+            heroAscii.classList.add('typed');
+            heroAscii.classList.remove('typing');
+            return;
+          }
 
-      heroAscii.textContent = '';
-      let index = 0;
-      function typeNext() {
-        heroAscii.textContent = normalized.slice(0, index);
-        if (index < normalized.length) {
-          index += 1;
-          const delay = 8 + Math.random() * 28;
-          setTimeout(typeNext, delay);
-        } else {
-          heroAscii.classList.add('typed');
-          heroAscii.classList.remove('typing');
-        }
-      }
-      typeNext();
-    })();
-  </script>
+          const totalLength = normalized.length;
+          heroAscii.textContent = ' '.repeat(totalLength);
+          let index = 0;
+          function typeNext() {
+            const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
+            heroAscii.textContent = frame;
+            if (index < totalLength) {
+              index += 1;
+              const delay = 2 + Math.random() * 7;
+              setTimeout(typeNext, delay);
+            } else {
+              heroAscii.classList.add('typed');
+              heroAscii.classList.remove('typing');
+            }
+          }
+          typeNext();
+        })();
+      </script>
 </body>
 </html>
 `;
@@ -1481,11 +1483,14 @@ a {
 
 .hero-ascii {
   font-size: 8px;
-  line-height: 1.2;
+  line-height: 1; /* Tighter line height for ASCII */
   color: var(--gray-500);
   margin-bottom: 32px;
   overflow: hidden;
-  min-height: 220px;
+  height: 220px; /* Fixed height to prevent downward shift */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   white-space: pre;
   position: relative;
 }

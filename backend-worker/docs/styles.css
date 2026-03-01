@@ -123,11 +123,14 @@ a {
 
 .hero-ascii {
   font-size: 8px;
-  line-height: 1.2;
+  line-height: 1; /* Tighter line height for ASCII */
   color: var(--gray-500);
   margin-bottom: 32px;
   overflow: hidden;
-  min-height: 220px;
+  height: 220px; /* Fixed height to prevent downward shift */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   white-space: pre;
   position: relative;
 }

@@ -209,13 +209,15 @@
         return;
       }
 
-      heroAscii.textContent = '';
+      const totalLength = normalized.length;
+      heroAscii.textContent = ' '.repeat(totalLength);
       let index = 0;
       function typeNext() {
-        heroAscii.textContent = normalized.slice(0, index);
-        if (index < normalized.length) {
+        const frame = normalized.slice(0, index).padEnd(totalLength, ' ');
+        heroAscii.textContent = frame;
+        if (index < totalLength) {
           index += 1;
-          const delay = 8 + Math.random() * 28;
+          const delay = 2 + Math.random() * 7;
           setTimeout(typeNext, delay);
         } else {
           heroAscii.classList.add('typed');
